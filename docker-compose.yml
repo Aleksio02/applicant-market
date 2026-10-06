@@ -1,47 +1,46 @@
 services:
   postgres:
-    container_name: mtp_db
+    container_name: am_db
     image: postgres:17-alpine
     environment:
-      POSTGRES_DB: mt_planner
-      POSTGRES_USER: mtp_admin
-      POSTGRES_PASSWORD: mtp_admin
+      POSTGRES_DB: applicant_market
+      POSTGRES_USER: applicant_market
+      POSTGRES_PASSWORD: applicant_market
     ports:
       - "5432:5432"
     volumes:
-      - mtp_data:/var/lib/postgresql/data
+      - am_data:/var/lib/postgresql/data
     restart: unless-stopped
 
   redis:
-    container_name: mtp_cache
+    container_name: am_cache
     image: redis:8.6.1-alpine
-    command: redis-server --save 20 1 --loglevel warning --requirepass mtp_token
+    command: redis-server --save 20 1 --loglevel warning --requirepass am_token
     ports:
       - "6379:6379"
 
-  kafka:
-    image: confluentinc/cp-kafka:latest
-    container_name: mtp_kafka
-    ports:
-      - "9992:9992"
-    environment:
-      KAFKA_NODE_ID: 1
-      KAFKA_PROCESS_ROLES: 'broker,controller'
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@localhost:9093'
-      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9992,CONTROLLER://0.0.0.0:9093'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://localhost:9992'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
-      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
-
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-    volumes:
-      - kafka_data:/var/lib/kafka/data
-
 volumes:
-  mtp_data:
-  kafka_data:
+  am_data:
+
+#  kafka:
+#    image: confluentinc/cp-kafka:latest
+#    container_name: mtp_kafka
+#    ports:
+#      - "9992:9992"
+#    environment:
+#      KAFKA_NODE_ID: 1
+#      KAFKA_PROCESS_ROLES: 'broker,controller'
+#      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@localhost:9093'
+#      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9992,CONTROLLER://0.0.0.0:9093'
+#      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://localhost:9992'
+#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+#      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+#      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
+#
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+#      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+#
+#      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+#    volumes:
+#      - kafka_data:/var/lib/kafka/data
