@@ -1,12 +1,11 @@
-package com.maboy.applicantmarket;
+package com.maboy;
+
+import org.flywaydb.core.Flyway;
+import org.yaml.snakeyaml.Yaml;
+import com.maboy.config.ApplicationConfig;
+import com.maboy.config.ApplicationConfig.Datasource;
 
 import java.io.InputStream;
-import java.util.Collections;
-import org.flywaydb.core.Flyway;
-import org.flywaydb.core.internal.jdbc.DriverDataSource;
-import org.yaml.snakeyaml.Yaml;
-import ru.epta.config.ApplicationConfig;
-import ru.epta.config.ApplicationConfig.Datasource;
 
 public class MigrationApp {
 

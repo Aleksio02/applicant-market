@@ -1,4 +1,4 @@
-package ru.epta.config;
+package com.maboy.config;
 
 import lombok.Getter;
 import lombok.Setter;
