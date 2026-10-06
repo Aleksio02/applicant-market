@@ -1,4 +1,4 @@
 datasource:
-  url:
-  username:
-  password:
+  url: jdbc:postgresql://localhost:5432/applicant_market
+  username: applicant_market
+  password: applicant_market
