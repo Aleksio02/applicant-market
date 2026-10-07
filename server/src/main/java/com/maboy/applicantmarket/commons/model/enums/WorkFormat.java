@@ -1,4 +1,4 @@
-package com.maboy.applicantmarket.employer.model.enums;
+package com.maboy.applicantmarket.commons.model.enums;
 
 public enum WorkFormat {
     OFFICE,

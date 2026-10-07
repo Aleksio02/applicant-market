@@ -1,4 +1,4 @@
-package com.maboy.applicantmarket.employer.model.request;
+package com.maboy.applicantmarket.vacancy.model.request;
 
 import com.maboy.applicantmarket.commons.model.enums.WorkFormat;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class UpdateHiringNeedRequest {
+public class UpdateVacancyRequest {
     private Optional<String> title = Optional.empty();
     private Optional<String> description = Optional.empty();
     private Optional<UUID> specializationId = Optional.empty();
