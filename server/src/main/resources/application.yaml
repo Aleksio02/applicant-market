@@ -38,6 +38,9 @@ spring:
           min-idle: 0
 
 app:
+  auth:
+    email-confirmation:
+      enabled: false
   consents:
     data-processing-version: 1
     profile-publication-version: 1

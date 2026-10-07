@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -40,6 +41,9 @@ public class AuthServiceImpl implements AuthService {
     private final ConsentDao consentDao;
     private final SessionUtils sessionUtils;
     private final EmailCodeService emailCodeService;
+
+    @Value("${app.auth.email-confirmation.enabled}")
+    private boolean emailConfirmationEnabled;
 
     @Value("${app.consents.data-processing-version}")
     private int dataProcessingVersion;
@@ -84,10 +88,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public RegisterResponse register(RegisterRequest request) {
         if (!request.validToRegistration()) {
             throw new IncorrectRequestDataException("You should fill all fields!");
         }
+
+        validateConsents(request.getAcceptedConsents());
+
         userDao.findByUsernameOrEmail(request.getLogin(), request.getEmail()).ifPresent((userDto) -> {
             throw new AlreadyExistsException("User with this username or email exists");
         });
@@ -95,16 +103,26 @@ public class AuthServiceImpl implements AuthService {
         request.setPassword(PasswordEncoder.encode(request.getPassword()));
         UserDto newUser = new UserDto();
         new AuthConverter().toDto(request, newUser);
+
+        if (!emailConfirmationEnabled) {
+            newUser.setStatus(UserStatus.ACTIVE);
+            newUser.setEmailVerifiedAt(Instant.now());
+        }
+
         newUser = userDao.save(newUser);
 
         saveConsents(newUser.getId(), request.getAcceptedConsents());
 
-        String code = emailCodeService.generateAndStore(newUser.getId());
-        sendCodeToMail(newUser.getEmail(), code);
+        if (emailConfirmationEnabled) {
+            String code = emailCodeService.generateAndStore(newUser.getId());
+            sendCodeToMail(newUser.getEmail(), code);
+        }
 
         return RegisterResponse.builder()
                 .userId(newUser.getId())
-                .message("Confirmation code sent to email")
+                .message(emailConfirmationEnabled
+                        ? "Confirmation code sent to email"
+                        : "Registration successful")
                 .build();
     }
 
@@ -134,24 +152,27 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public SessionPayload validateSession(String sessionId) {
-        RuntimeException sessionHasBeenFinishedException = new UnauthorizedException("This session has been finished");
+        SessionPayload sessionPayload;
         try {
-            SessionPayload sessionPayload = sessionUtils.getSession(sessionId);
-            if (sessionPayload.getExpires().isBefore(Instant.now())) {
-                sessionUtils.deleteSession(sessionId);
-                throw sessionHasBeenFinishedException;
-            }
-
-            UserDto userDto = userDao.findById(sessionPayload.getUserId()).get();
-            User user = new User();
-            new UserConverter().fromDto(userDto, user);
-            sessionPayload.setCurrentUser(user);
-            sessionUtils.extendSession(sessionId);
-
-            return sessionPayload;
+            sessionPayload = sessionUtils.getSession(sessionId);
         } catch (Exception e) {
-            throw sessionHasBeenFinishedException;
+            throw new UnauthorizedException("This session has been finished");
         }
+
+        if (sessionPayload == null || sessionPayload.getExpires().isBefore(Instant.now())) {
+            sessionUtils.deleteSession(sessionId);
+            throw new UnauthorizedException("This session has been finished");
+        }
+
+        UserDto userDto = userDao.findById(sessionPayload.getUserId())
+                .orElseThrow(() -> new UnauthorizedException("User not found"));
+
+        User user = new User();
+        new UserConverter().fromDto(userDto, user);
+        sessionPayload.setCurrentUser(user);
+        sessionUtils.extendSession(sessionId);
+
+        return sessionPayload;
     }
 
     @Override
@@ -163,13 +184,13 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    private void validateConsents(List<ConsentType> types) {
+        if (types == null || types.isEmpty() || !types.contains(ConsentType.DATA_PROCESSING)) {
+            throw new IncorrectRequestDataException("Data processing consent is required");
+        }
+    }
+
     private void saveConsents(UUID userId, List<ConsentType> types) {
-        if (types == null || types.isEmpty()) {
-            throw new IncorrectRequestDataException("Data processing consent is required");
-        }
-        if (!types.contains(ConsentType.DATA_PROCESSING)) {
-            throw new IncorrectRequestDataException("Data processing consent is required");
-        }
         for (ConsentType type : types) {
             ConsentDto consent = new ConsentDto();
             consent.setUserId(userId);
