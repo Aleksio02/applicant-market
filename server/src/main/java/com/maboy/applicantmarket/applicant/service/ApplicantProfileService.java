@@ -63,8 +63,7 @@ public class ApplicantProfileService {
     public ApplicantProfile update(UUID userId, UpdateApplicantProfileRequest request) {
         ApplicantProfileDto entity = profileDao.findByUserId(userId)
             .orElseThrow(() -> new ApplicantNotFoundException("Profile not found for user " + userId));
-        ApplicantProfile model = converter.fromDto(entity);
-        converter.applyUpdate(model, request);
+        converter.applyUpdate(entity, request);
         return converter.fromDto(entity);
     }
 

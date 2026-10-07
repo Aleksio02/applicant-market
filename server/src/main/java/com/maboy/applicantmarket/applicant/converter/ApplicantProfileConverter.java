@@ -69,7 +69,7 @@ public class ApplicantProfileConverter {
         return r;
     }
 
-    public void applyUpdate(ApplicantProfile m, UpdateApplicantProfileRequest r) {
+    public void applyUpdate(ApplicantProfileDto m, UpdateApplicantProfileRequest r) {
         if (r.getFirstName() != null) m.setFirstName(r.getFirstName());
         if (r.getLastName() != null) m.setLastName(r.getLastName());
         if (r.getMiddleName() != null) m.setMiddleName(r.getMiddleName());
