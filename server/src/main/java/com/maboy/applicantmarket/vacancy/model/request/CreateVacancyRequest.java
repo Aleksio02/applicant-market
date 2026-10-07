@@ -1,4 +1,4 @@
-package com.maboy.applicantmarket.employer.model.request;
+package com.maboy.applicantmarket.vacancy.model.request;
 
 import com.maboy.applicantmarket.commons.model.enums.WorkFormat;
 import jakarta.validation.constraints.NotBlank;
@@ -12,12 +12,13 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class CreateHiringNeedRequest {
+public class CreateVacancyRequest {
 
     @NotBlank(message = "Title must not be empty")
     @Size(max = 255)
     private String title;
 
+    @NotBlank(message = "Description must not be empty")
     private String description;
 
     @NotNull(message = "Specialization must not be null")

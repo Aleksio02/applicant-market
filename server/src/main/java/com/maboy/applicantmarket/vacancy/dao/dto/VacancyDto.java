@@ -1,14 +1,12 @@
-package com.maboy.applicantmarket.employer.dao.dto;
+package com.maboy.applicantmarket.vacancy.dao.dto;
 
 import com.maboy.applicantmarket.commons.dao.dto.AbstractEntityDto;
 import com.maboy.applicantmarket.commons.model.enums.WorkFormat;
+import com.maboy.applicantmarket.vacancy.model.enums.VacancyStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,17 +17,16 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(schema = "public", name = "hiring_needs")
-public class HiringNeedDto extends AbstractEntityDto {
+@Table(schema = "public", name = "vacancies")
+public class VacancyDto extends AbstractEntityDto {
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "company_id", nullable = false)
-    private CompanyDto company;
+    @Column(name = "company_id", nullable = false)
+    private UUID companyId;
 
     @Column(nullable = false)
     private String title;
 
-    @Column(columnDefinition = "text")
+    @Column(columnDefinition = "text", nullable = false)
     private String description;
 
     @Column(name = "specialization_id", nullable = false)
@@ -38,10 +35,10 @@ public class HiringNeedDto extends AbstractEntityDto {
     @Column(name = "grade_id", nullable = false)
     private UUID gradeId;
 
-    @Column(name = "salary_from")
+    @Column(name = "salary_from", nullable = false)
     private Long salaryFrom;
 
-    @Column(name = "salary_to")
+    @Column(name = "salary_to", nullable = false)
     private Long salaryTo;
 
     @Enumerated(EnumType.STRING)
@@ -51,8 +48,15 @@ public class HiringNeedDto extends AbstractEntityDto {
     @Column
     private String location;
 
-    @Column(name = "is_active", nullable = false)
-    private boolean active = true;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private VacancyStatus status;
+
+    @Column(name = "published_at")
+    private Instant publishedAt;
+
+    @Column(name = "closed_at")
+    private Instant closedAt;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;

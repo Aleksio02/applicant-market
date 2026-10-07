@@ -96,4 +96,11 @@ public class CompanyServiceImpl implements CompanyService {
         new CompanyConverter().fromDto(saved, company);
         return company;
     }
+
+    @Override
+    public UUID getCompanyIdByOwner(UUID ownerId) {
+        return companyDao.findByOwnerId(ownerId)
+                .map(CompanyDto::getId)
+                .orElseThrow(() -> new NotFoundException("Company not found"));
+    }
 }

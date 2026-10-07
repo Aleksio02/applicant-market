@@ -10,4 +10,5 @@ public interface CompanyService {
     Company create(UUID ownerId, CreateCompanyRequest request);
     Company getMine(UUID ownerId);
     Company update(UUID ownerId, UpdateCompanyRequest request);
+    UUID getCompanyIdByOwner(UUID ownerId);
 }

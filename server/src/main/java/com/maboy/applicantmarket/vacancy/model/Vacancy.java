@@ -1,8 +1,9 @@
-package com.maboy.applicantmarket.employer.model;
+package com.maboy.applicantmarket.vacancy.model;
 
 import com.maboy.applicantmarket.commons.model.Grade;
 import com.maboy.applicantmarket.commons.model.Specialization;
 import com.maboy.applicantmarket.commons.model.enums.WorkFormat;
+import com.maboy.applicantmarket.vacancy.model.enums.VacancyStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +12,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class HiringNeed {
+public class Vacancy {
     private UUID id;
     private UUID companyId;
     private String title;
@@ -24,7 +25,9 @@ public class HiringNeed {
     private Long salaryTo;
     private WorkFormat format;
     private String location;
-    private boolean active;
+    private VacancyStatus status;
+    private Instant publishedAt;
+    private Instant closedAt;
     private Instant createdAt;
     private Instant updatedAt;
 }
