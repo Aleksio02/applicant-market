@@ -18,6 +18,7 @@ target/
 *.iws
 *.iml
 *.ipr
+.PVS-Studio
 
 ### NetBeans ###
 /nbproject/private/
