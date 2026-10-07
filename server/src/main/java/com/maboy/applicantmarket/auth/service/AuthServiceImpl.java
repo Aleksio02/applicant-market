@@ -13,11 +13,18 @@ import com.maboy.applicantmarket.commons.dao.ConsentDao;
 import com.maboy.applicantmarket.commons.dao.UserDao;
 import com.maboy.applicantmarket.commons.dao.dto.ConsentDto;
 import com.maboy.applicantmarket.commons.dao.dto.UserDto;
-import com.maboy.applicantmarket.commons.exception.*;
-import com.maboy.applicantmarket.commons.model.*;
+import com.maboy.applicantmarket.commons.exception.AccessForbiddenException;
+import com.maboy.applicantmarket.commons.exception.AlreadyExistsException;
+import com.maboy.applicantmarket.commons.exception.IncorrectRequestDataException;
+import com.maboy.applicantmarket.commons.exception.NotFoundException;
+import com.maboy.applicantmarket.commons.exception.UnauthorizedException;
+import com.maboy.applicantmarket.commons.model.ConsentType;
+import com.maboy.applicantmarket.commons.model.Role;
+import com.maboy.applicantmarket.commons.model.SessionPayload;
+import com.maboy.applicantmarket.commons.model.User;
+import com.maboy.applicantmarket.commons.model.UserStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -31,12 +38,8 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserDao userDao;
     private final ConsentDao consentDao;
-    private final JavaMailSender mailSender;
     private final SessionUtils sessionUtils;
     private final EmailCodeService emailCodeService;
-
-    @Value("${spring.mail.username}")
-    private String sourceEmail;
 
     @Value("${app.consents.data-processing-version}")
     private int dataProcessingVersion;
@@ -49,12 +52,10 @@ public class AuthServiceImpl implements AuthService {
 
     public AuthServiceImpl(UserDao userDao,
                            ConsentDao consentDao,
-                           JavaMailSender mailSender,
                            SessionUtils sessionUtils,
                            EmailCodeService emailCodeService) {
         this.userDao = userDao;
         this.consentDao = consentDao;
-        this.mailSender = mailSender;
         this.sessionUtils = sessionUtils;
         this.emailCodeService = emailCodeService;
     }
