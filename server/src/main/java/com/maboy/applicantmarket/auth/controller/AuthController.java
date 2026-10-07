@@ -1,6 +1,6 @@
 package com.maboy.applicantmarket.auth.controller;
 
-import com.maboy.applicantmarket.auth.model.request.Authorization;
+import com.maboy.applicantmarket.auth.model.request.AuthorizationRequest;
 import com.maboy.applicantmarket.auth.model.request.ConfirmEmailRequest;
 import com.maboy.applicantmarket.auth.model.request.RegisterRequest;
 import com.maboy.applicantmarket.auth.model.response.AuthResponse;
@@ -42,7 +42,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@Valid @RequestBody Authorization request, HttpServletResponse response) {
+    public AuthResponse login(@Valid @RequestBody AuthorizationRequest request, HttpServletResponse response) {
         AuthResponse authResponse = authService.login(request);
         sessionUtils.writeSessionCookie(response, authResponse.getToken());
         return authResponse;

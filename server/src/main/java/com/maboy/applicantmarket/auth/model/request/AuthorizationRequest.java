@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Authorization {
+public class AuthorizationRequest {
 
     @NotBlank(message = "Login must not be empty")
     private String login;

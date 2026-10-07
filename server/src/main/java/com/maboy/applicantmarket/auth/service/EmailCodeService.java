@@ -1,6 +1,5 @@
 package com.maboy.applicantmarket.auth.service;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +14,6 @@ public class EmailCodeService {
     private static final long TTL_MINUTES = 15;
 
     private final RedisTemplate<String, String> redisTemplate;
-
-    @Value("${spring.mail.username}")
-    private String sourceEmail;
 
     public EmailCodeService(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
