@@ -42,3 +42,7 @@ app:
     data-processing-version: 1
     profile-publication-version: 1
     contact-reveal-version: 1
+
+applicant:
+  grade-change:
+    cooldown: 90d
