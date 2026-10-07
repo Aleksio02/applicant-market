@@ -29,8 +29,8 @@ CREATE INDEX IF NOT EXISTS idx_skills_active_sort ON skills (is_active, sort_ord
 CREATE TABLE IF NOT EXISTS categories
 (
     id                UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
-    specialization_id UUID         NOT NULL CONSTRAINT fk_categories_specialization REFERENCES specializations (id),
-    grade_id          UUID         NOT NULL CONSTRAINT fk_categories_grade REFERENCES grades (id),
+    specialization_id UUID         NOT NULL CONSTRAINT fk_categories_specialization REFERENCES specializations(id),
+    grade_id          UUID         NOT NULL CONSTRAINT fk_categories_grade REFERENCES grades(id),
     code              VARCHAR(100) NOT NULL UNIQUE,
     name              VARCHAR(255) NOT NULL,
     is_active         BOOLEAN      NOT NULL DEFAULT TRUE,
@@ -124,7 +124,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_applicant_skills_one_primary
 CREATE TABLE IF NOT EXISTS applicant_experiences
 (
     id           UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
-    applicant_id UUID         NOT NULL CONSTRAINT fk_applicant_experiences_applicant applicant_profiles (id) ON DELETE CASCADE,
+    applicant_id UUID         NOT NULL CONSTRAINT fk_applicant_experiences_applicant REFERENCES applicant_profiles (id) ON DELETE CASCADE,
     company      VARCHAR(200) NOT NULL,
     position     VARCHAR(200) NOT NULL,
     start_date   DATE         NOT NULL,
@@ -206,7 +206,7 @@ CREATE TABLE IF NOT EXISTS applicant_privacy_settings
     allow_invitations          BOOLEAN     NOT NULL DEFAULT TRUE,
     show_contacts_after_accept BOOLEAN     NOT NULL DEFAULT TRUE,
     show_fsp_achievements      BOOLEAN     NOT NULL DEFAULT TRUE,
-    updated_at                 TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at                 TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- =============================================================
