@@ -2,7 +2,7 @@ package com.maboy.applicantmarket.auth.service;
 
 import com.maboy.applicantmarket.auth.converter.AuthConverter;
 import com.maboy.applicantmarket.auth.hash.PasswordEncoder;
-import com.maboy.applicantmarket.auth.model.request.Authorization;
+import com.maboy.applicantmarket.auth.model.request.AuthorizationRequest;
 import com.maboy.applicantmarket.auth.model.request.ConfirmEmailRequest;
 import com.maboy.applicantmarket.auth.model.request.RegisterRequest;
 import com.maboy.applicantmarket.auth.model.response.AuthResponse;
@@ -13,18 +13,18 @@ import com.maboy.applicantmarket.commons.dao.ConsentDao;
 import com.maboy.applicantmarket.commons.dao.UserDao;
 import com.maboy.applicantmarket.commons.dao.dto.ConsentDto;
 import com.maboy.applicantmarket.commons.dao.dto.UserDto;
+import com.maboy.applicantmarket.commons.exception.AccessForbiddenException;
 import com.maboy.applicantmarket.commons.exception.AlreadyExistsException;
 import com.maboy.applicantmarket.commons.exception.IncorrectRequestDataException;
 import com.maboy.applicantmarket.commons.exception.NotFoundException;
 import com.maboy.applicantmarket.commons.exception.UnauthorizedException;
 import com.maboy.applicantmarket.commons.model.ConsentType;
+import com.maboy.applicantmarket.commons.model.Role;
 import com.maboy.applicantmarket.commons.model.SessionPayload;
 import com.maboy.applicantmarket.commons.model.User;
 import com.maboy.applicantmarket.commons.model.UserStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +38,6 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserDao userDao;
     private final ConsentDao consentDao;
-    private final JavaMailSender mailSender;
     private final SessionUtils sessionUtils;
     private final EmailCodeService emailCodeService;
 
@@ -56,18 +55,16 @@ public class AuthServiceImpl implements AuthService {
 
     public AuthServiceImpl(UserDao userDao,
                            ConsentDao consentDao,
-                           JavaMailSender mailSender,
                            SessionUtils sessionUtils,
                            EmailCodeService emailCodeService) {
         this.userDao = userDao;
         this.consentDao = consentDao;
-        this.mailSender = mailSender;
         this.sessionUtils = sessionUtils;
         this.emailCodeService = emailCodeService;
     }
 
     @Override
-    public AuthResponse login(Authorization request) {
+    public AuthResponse login(AuthorizationRequest request) {
         String login = request.getLogin();
         String password = request.getPassword();
 
@@ -157,6 +154,15 @@ public class AuthServiceImpl implements AuthService {
             return sessionPayload;
         } catch (Exception e) {
             throw sessionHasBeenFinishedException;
+        }
+    }
+
+    @Override
+    public void requireEmployer(UUID userId) {
+        UserDto user = userDao.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        if (user.getRole() != Role.EMPLOYER) {
+            throw new AccessForbiddenException("Only employer can perform this action");
         }
     }
 
