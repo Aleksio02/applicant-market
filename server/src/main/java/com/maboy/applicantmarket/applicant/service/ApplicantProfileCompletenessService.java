@@ -5,7 +5,7 @@ import com.maboy.applicantmarket.applicant.dao.ApplicantExperienceDao;
 import com.maboy.applicantmarket.applicant.dao.ApplicantProfileDao;
 import com.maboy.applicantmarket.applicant.dao.ApplicantSkillDao;
 import com.maboy.applicantmarket.applicant.dao.dto.ApplicantProfileDto;
-import com.maboy.applicantmarket.applicant.model.exception.ApplicantNotFoundException;
+import com.maboy.applicantmarket.commons.exception.ApplicantNotFoundException;
 import com.maboy.applicantmarket.applicant.model.response.ApplicantProfileCompletenessResponse;
 import java.util.ArrayList;
 import java.util.List;

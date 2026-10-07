@@ -6,7 +6,7 @@ import com.maboy.applicantmarket.applicant.dao.ApplicantProfileDao;
 import com.maboy.applicantmarket.applicant.dao.dto.ApplicantPrivacySettingsDto;
 import com.maboy.applicantmarket.applicant.dao.dto.ApplicantProfileDto;
 import com.maboy.applicantmarket.applicant.model.ApplicantProfile;
-import com.maboy.applicantmarket.applicant.model.exception.ApplicantNotFoundException;
+import com.maboy.applicantmarket.commons.exception.ApplicantNotFoundException;
 import com.maboy.applicantmarket.applicant.model.request.UpdateApplicantProfileRequest;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

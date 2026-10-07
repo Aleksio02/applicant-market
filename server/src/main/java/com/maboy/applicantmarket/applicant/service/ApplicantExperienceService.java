@@ -4,7 +4,7 @@ import com.maboy.applicantmarket.applicant.converter.ApplicantExperienceConverte
 import com.maboy.applicantmarket.applicant.dao.ApplicantExperienceDao;
 import com.maboy.applicantmarket.applicant.dao.dto.ApplicantExperienceDto;
 import com.maboy.applicantmarket.applicant.model.ApplicantExperience;
-import com.maboy.applicantmarket.applicant.model.exception.ApplicantNotFoundException;
+import com.maboy.applicantmarket.commons.exception.ApplicantNotFoundException;
 import com.maboy.applicantmarket.applicant.model.request.AddExperienceRequest;
 import com.maboy.applicantmarket.applicant.model.request.UpdateExperienceRequest;
 import lombok.RequiredArgsConstructor;

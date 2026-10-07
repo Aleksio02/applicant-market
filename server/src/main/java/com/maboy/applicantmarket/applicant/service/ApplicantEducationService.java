@@ -4,7 +4,7 @@ import com.maboy.applicantmarket.applicant.converter.ApplicantEducationConverter
 import com.maboy.applicantmarket.applicant.dao.ApplicantEducationDao;
 import com.maboy.applicantmarket.applicant.dao.dto.ApplicantEducationDto;
 import com.maboy.applicantmarket.applicant.model.ApplicantEducation;
-import com.maboy.applicantmarket.applicant.model.exception.ApplicantNotFoundException;
+import com.maboy.applicantmarket.commons.exception.ApplicantNotFoundException;
 import com.maboy.applicantmarket.applicant.model.request.AddEducationRequest;
 import com.maboy.applicantmarket.applicant.model.request.UpdateEducationRequest;
 import lombok.RequiredArgsConstructor;

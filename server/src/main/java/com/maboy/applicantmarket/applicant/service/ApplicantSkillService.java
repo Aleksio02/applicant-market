@@ -4,10 +4,9 @@ import com.maboy.applicantmarket.applicant.api.event.ApplicantPrimarySkillChange
 import com.maboy.applicantmarket.applicant.dao.ApplicantSkillDao;
 import com.maboy.applicantmarket.applicant.dao.dto.ApplicantSkillDto;
 import com.maboy.applicantmarket.applicant.model.ApplicantSkill;
-import com.maboy.applicantmarket.applicant.model.exception.ApplicantNotFoundException;
+import com.maboy.applicantmarket.commons.exception.ApplicantNotFoundException;
 import com.maboy.applicantmarket.applicant.model.request.AddApplicantSkillRequest;
 import com.maboy.applicantmarket.applicant.model.request.UpdateApplicantSkillRequest;
-import com.maboy.applicantmarket.commons.dao.SkillDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;

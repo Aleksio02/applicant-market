@@ -42,6 +42,18 @@ public class GlobalControllerExceptionHandler {
     public ResponseEntity<ErrorResponse> handleServerUnavailableException(ServerUnavailableException exception, WebRequest request) {
         return buildErrorResponse(HttpStatus.GATEWAY_TIMEOUT, exception.getMessage());
     }
+    @ExceptionHandler(ApplicantNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleApplicantNotFoundException(ApplicantNotFoundException exception, WebRequest request) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+    @ExceptionHandler(FspIdAlreadyLinkedException.class)
+    public ResponseEntity<ErrorResponse> handleFspIdAlreadyLinkedException(FspIdAlreadyLinkedException exception, WebRequest request) {
+        return buildErrorResponse(HttpStatus.CONFLICT, exception.getMessage());
+    }
+    @ExceptionHandler(GradeChangeCooldownException.class)
+    public ResponseEntity<ErrorResponse> handleGradeChangeCooldownException(GradeChangeCooldownException exception, WebRequest request) {
+        return buildErrorResponse(HttpStatus.CONFLICT, exception.getMessage());
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex, WebRequest request) {

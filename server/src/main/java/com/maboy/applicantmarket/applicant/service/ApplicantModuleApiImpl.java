@@ -12,7 +12,7 @@ import com.maboy.applicantmarket.applicant.dao.FspAchievementStubDao;
 import com.maboy.applicantmarket.applicant.dao.dto.ApplicantPrivacySettingsDto;
 import com.maboy.applicantmarket.applicant.dao.dto.ApplicantProfileDto;
 import com.maboy.applicantmarket.applicant.dao.dto.ApplicantSkillDto;
-import com.maboy.applicantmarket.applicant.model.exception.ApplicantNotFoundException;
+import com.maboy.applicantmarket.commons.exception.ApplicantNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
