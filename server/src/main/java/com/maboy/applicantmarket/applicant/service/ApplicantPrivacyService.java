@@ -33,7 +33,7 @@ public class ApplicantPrivacyService {
 
     @Transactional
     public ApplicantPrivacySettings update(UUID userId, UpdatePrivacyRequest request) {
-        UUID applicantId = profileService.getByUserId(userId).getId();
+        UUID applicantId = profileService.getOrCreate(userId).getId();
         ApplicantPrivacySettingsDto entity = dao.findById(applicantId)
             .orElseThrow(() -> new IllegalStateException("Privacy settings not found"));
         boolean wasVisible = Boolean.TRUE.equals(entity.getVisibleInSearch());
