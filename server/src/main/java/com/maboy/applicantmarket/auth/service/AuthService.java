@@ -15,4 +15,5 @@ public interface AuthService {
     AuthResponse confirmEmail(ConfirmEmailRequest request);
     SessionPayload validateSession(String sessionId);
     void requireEmployer(UUID userId);
+    void requireApplicant(UUID userId);
 }
