@@ -213,4 +213,13 @@ public class AuthServiceImpl implements AuthService {
     protected void sendCodeToMail(String receiver, String code) {
         System.out.println("Confirmation code for " + receiver + ": " + code);
     }
+
+    @Override
+    public void requireApplicant(UUID userId) {
+        UserDto user = userDao.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        if (user.getRole() != Role.APPLICANT) {
+            throw new AccessForbiddenException("Only applicant can perform this action");
+        }
+    }
 }

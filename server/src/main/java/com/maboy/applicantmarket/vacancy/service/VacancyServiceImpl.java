@@ -289,4 +289,11 @@ public class VacancyServiceImpl implements VacancyService {
 
         return model;
     }
+
+    @Override
+    public UUID getCompanyIdByVacancyId(UUID vacancyId) {
+        return vacancyDao.findById(vacancyId)
+                .map(VacancyDto::getCompanyId)
+                .orElseThrow(() -> new NotFoundException("Vacancy not found"));
+    }
 }
