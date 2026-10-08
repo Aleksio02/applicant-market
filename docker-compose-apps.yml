@@ -1,0 +1,36 @@
+services:
+  backend:
+    container_name: am_backend
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/applicant_market
+      SPRING_DATASOURCE_USERNAME: applicant_market
+      SPRING_DATASOURCE_PASSWORD: applicant_market
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: am_token
+      SERVER_PORT: 8081
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    container_name: am_frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:8081
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
