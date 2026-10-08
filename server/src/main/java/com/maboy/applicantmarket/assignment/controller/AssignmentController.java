@@ -35,8 +35,9 @@ public class AssignmentController {
     }
 
     @GetMapping("/vacancy/{vacancyId}")
-    public VacancyAssignment getByVacancy(@PathVariable UUID vacancyId) {
-        return assignmentService.getByVacancy(vacancyId);
+    public VacancyAssignment getByVacancy(@PathVariable UUID vacancyId,
+                                          @CurrentUser UUID requesterId) {
+        return assignmentService.getByVacancy(requesterId, vacancyId);
     }
 
     @PatchMapping("/vacancy/{vacancyId}")

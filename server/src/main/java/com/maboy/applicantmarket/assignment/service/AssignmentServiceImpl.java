@@ -7,6 +7,7 @@ import com.maboy.applicantmarket.assignment.model.VacancyAssignment;
 import com.maboy.applicantmarket.assignment.model.request.CreateAssignmentRequest;
 import com.maboy.applicantmarket.assignment.model.request.UpdateAssignmentRequest;
 import com.maboy.applicantmarket.auth.service.AuthService;
+import com.maboy.applicantmarket.commons.exception.AccessForbiddenException;
 import com.maboy.applicantmarket.commons.exception.AlreadyExistsException;
 import com.maboy.applicantmarket.commons.exception.NotFoundException;
 import com.maboy.applicantmarket.employer.service.CompanyService;
@@ -44,7 +45,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         UUID companyId = companyService.getCompanyIdByOwner(ownerId);
         UUID vacancyCompanyId = vacancyService.getCompanyIdByVacancyId(vacancyId);
         if (!companyId.equals(vacancyCompanyId)) {
-            throw new NotFoundException("Vacancy not found");
+            throw new AccessForbiddenException("Vacancy belongs to another company");
         }
 
         if (assignmentDao.existsByVacancyId(vacancyId)) {
@@ -66,7 +67,11 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public VacancyAssignment getByVacancy(UUID vacancyId) {
+    public VacancyAssignment getByVacancy(UUID requesterId, UUID vacancyId) {
+        // Проверяет, что вакансия существует и доступна запрашивающему:
+        // PUBLISHED — доступна всем, DRAFT/CLOSED — только владельцу.
+        vacancyService.getById(requesterId, vacancyId);
+
         VacancyAssignmentDto dto = assignmentDao.findByVacancyId(vacancyId)
                 .orElseThrow(() -> new NotFoundException("Assignment not found"));
         return toModel(dto);
@@ -79,7 +84,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         UUID companyId = companyService.getCompanyIdByOwner(ownerId);
         UUID vacancyCompanyId = vacancyService.getCompanyIdByVacancyId(vacancyId);
         if (!companyId.equals(vacancyCompanyId)) {
-            throw new NotFoundException("Vacancy not found");
+            throw new AccessForbiddenException("Vacancy belongs to another company");
         }
 
         VacancyAssignmentDto dto = assignmentDao.findByVacancyId(vacancyId)
@@ -102,7 +107,7 @@ public class AssignmentServiceImpl implements AssignmentService {
         UUID companyId = companyService.getCompanyIdByOwner(ownerId);
         UUID vacancyCompanyId = vacancyService.getCompanyIdByVacancyId(vacancyId);
         if (!companyId.equals(vacancyCompanyId)) {
-            throw new NotFoundException("Vacancy not found");
+            throw new AccessForbiddenException("Vacancy belongs to another company");
         }
 
         VacancyAssignmentDto dto = assignmentDao.findByVacancyId(vacancyId)

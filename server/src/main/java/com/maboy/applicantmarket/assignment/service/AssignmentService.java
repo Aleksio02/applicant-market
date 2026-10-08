@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface AssignmentService {
     VacancyAssignment create(UUID ownerId, UUID vacancyId, CreateAssignmentRequest request);
-    VacancyAssignment getByVacancy(UUID vacancyId);
+    VacancyAssignment getByVacancy(UUID requesterId, UUID vacancyId);
     VacancyAssignment update(UUID ownerId, UUID vacancyId, UpdateAssignmentRequest request);
     void delete(UUID ownerId, UUID vacancyId);
 }

@@ -94,9 +94,9 @@ public class AssignmentAttemptServiceImpl implements AssignmentAttemptService {
 
         Instant now = Instant.now();
         if (now.isAfter(dto.getDeadlineAt())) {
-            dto.setStatus(AssignmentAttemptStatus.EXPIRED);
-            dto.setUpdatedAt(now);
-            attemptDao.save(dto);
+            // Не сохраняем EXPIRED здесь: транзакция откатится из-за исключения,
+            // и save не выполнится. Статус обновится через refreshExpiredStatus
+            // при следующем чтении попытки.
             throw new IncorrectRequestDataException("Attempt deadline expired");
         }
 
@@ -128,6 +128,7 @@ public class AssignmentAttemptServiceImpl implements AssignmentAttemptService {
     }
 
     @Override
+    @Transactional
     public List<AssignmentAttempt> getMine(UUID candidateId) {
         authService.requireApplicant(candidateId);
         List<AssignmentAttemptDto> found = attemptDao.findAllByCandidateIdOrderByCreatedAtDesc(candidateId);
@@ -140,6 +141,7 @@ public class AssignmentAttemptServiceImpl implements AssignmentAttemptService {
     }
 
     @Override
+    @Transactional
     public List<AssignmentAttempt> getByAssignment(UUID ownerId, UUID assignmentId) {
         authService.requireEmployer(ownerId);
 
@@ -183,7 +185,12 @@ public class AssignmentAttemptServiceImpl implements AssignmentAttemptService {
     }
 
     private void requireOwnedByRequester(UUID vacancyId, UUID requesterId) {
-        UUID companyId = companyService.getCompanyIdByOwner(requesterId);
+        UUID companyId;
+        try {
+            companyId = companyService.getCompanyIdByOwner(requesterId);
+        } catch (NotFoundException e) {
+            throw new AccessForbiddenException("You do not have access to this attempt");
+        }
         UUID vacancyCompanyId = vacancyService.getCompanyIdByVacancyId(vacancyId);
         if (!companyId.equals(vacancyCompanyId)) {
             throw new AccessForbiddenException("Vacancy belongs to another company");
