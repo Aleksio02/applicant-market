@@ -16,4 +16,5 @@ public interface VacancyService {
     Vacancy update(UUID ownerId, UUID id, UpdateVacancyRequest request);
     Vacancy publish(UUID ownerId, UUID id);
     Vacancy close(UUID ownerId, UUID id);
+    UUID getCompanyIdByVacancyId(UUID vacancyId);
 }
