@@ -3,7 +3,11 @@ import Login from '@/pages/Login'
 import Register from '@/pages/Register'
 import ConfirmEmail from '@/pages/ConfirmEmail'
 import ApplicantDashboard from '@/pages/ApplicantDashboard'
-import EmployerDashboard from '@/pages/EmployerDashboard'
+import EmployerDashboard from '@/pages/employer/EmployerDashboard'
+import CompanyPage from '@/pages/employer/CompanyPage'
+import HiringNeedsListPage from '@/pages/employer/HiringNeedsListPage'
+import HiringNeedFormPage from '@/pages/employer/HiringNeedFormPage'
+import { EmployerLayout } from '@/shared/layout/EmployerLayout'
 import { ProtectedRoute } from './ProtectedRoute'
 
 export const router = createBrowserRouter([
@@ -18,7 +22,18 @@ export const router = createBrowserRouter([
   },
   {
     element: <ProtectedRoute role="EMPLOYER" />,
-    children: [{ path: '/employer', element: <EmployerDashboard /> }],
+    children: [
+      {
+        element: <EmployerLayout />,
+        children: [
+          { path: '/employer', element: <EmployerDashboard /> },
+          { path: '/employer/company', element: <CompanyPage /> },
+          { path: '/employer/hiring-needs', element: <HiringNeedsListPage /> },
+          { path: '/employer/hiring-needs/new', element: <HiringNeedFormPage /> },
+          { path: '/employer/hiring-needs/:id', element: <HiringNeedFormPage /> },
+        ],
+      },
+    ],
   },
 
   { path: '*', element: <Navigate to="/login" replace /> },
