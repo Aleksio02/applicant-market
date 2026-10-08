@@ -7,6 +7,7 @@ import com.maboy.applicantmarket.assignment.dao.dto.AssignmentAttemptDto;
 import com.maboy.applicantmarket.assignment.dao.dto.VacancyAssignmentDto;
 import com.maboy.applicantmarket.assignment.model.AssignmentAttempt;
 import com.maboy.applicantmarket.assignment.model.enums.AssignmentAttemptStatus;
+import com.maboy.applicantmarket.assignment.model.enums.EvaluationVerdict;
 import com.maboy.applicantmarket.assignment.model.request.EvaluateAttemptRequest;
 import com.maboy.applicantmarket.assignment.model.request.SubmitAttemptRequest;
 import com.maboy.applicantmarket.auth.service.AuthService;
@@ -15,6 +16,7 @@ import com.maboy.applicantmarket.commons.exception.AlreadyExistsException;
 import com.maboy.applicantmarket.commons.exception.IncorrectRequestDataException;
 import com.maboy.applicantmarket.commons.exception.NotFoundException;
 import com.maboy.applicantmarket.employer.service.CompanyService;
+import com.maboy.applicantmarket.interaction.api.InteractionModuleApi;
 import com.maboy.applicantmarket.vacancy.service.VacancyService;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -35,17 +37,20 @@ public class AssignmentAttemptServiceImpl implements AssignmentAttemptService {
     private final CompanyService companyService;
     private final VacancyService vacancyService;
     private final AuthService authService;
+    private final InteractionModuleApi interactionModuleApi;
 
     public AssignmentAttemptServiceImpl(AssignmentAttemptDao attemptDao,
                                         AssignmentDao assignmentDao,
                                         CompanyService companyService,
                                         VacancyService vacancyService,
-                                        AuthService authService) {
+                                        AuthService authService,
+                                        InteractionModuleApi interactionModuleApi) {
         this.attemptDao = attemptDao;
         this.assignmentDao = assignmentDao;
         this.companyService = companyService;
         this.vacancyService = vacancyService;
         this.authService = authService;
+        this.interactionModuleApi = interactionModuleApi;
     }
 
     @Override
@@ -94,9 +99,6 @@ public class AssignmentAttemptServiceImpl implements AssignmentAttemptService {
 
         Instant now = Instant.now();
         if (now.isAfter(dto.getDeadlineAt())) {
-            // Не сохраняем EXPIRED здесь: транзакция откатится из-за исключения,
-            // и save не выполнится. Статус обновится через refreshExpiredStatus
-            // при следующем чтении попытки.
             throw new IncorrectRequestDataException("Attempt deadline expired");
         }
 
@@ -181,6 +183,16 @@ public class AssignmentAttemptServiceImpl implements AssignmentAttemptService {
         dto.setUpdatedAt(now);
 
         AssignmentAttemptDto saved = attemptDao.save(dto);
+
+        // Если задание пройдено — создаём отклик от кандидата на вакансию.
+        // Метод идемпотентен: если активный отклик уже есть, новый не создаётся.
+        if (saved.getVerdict() == EvaluationVerdict.PASS) {
+            interactionModuleApi.createApplicationFromAssignment(
+                    saved.getCandidateId(),
+                    saved.getAssignment().getVacancyId()
+            );
+        }
+
         return toModel(saved);
     }
 
