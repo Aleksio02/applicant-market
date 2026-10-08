@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import {
   Building2,
+  FileText,
   LayoutDashboard,
   Briefcase,
   LogOut,
@@ -9,9 +10,10 @@ import { useAuth } from '@/features/auth/useAuth'
 import { cn } from '@/shared/lib/cn'
 
 const NAV = [
-  { to: '/employer',           label: 'Обзор',       icon: LayoutDashboard, end: true },
-  { to: '/employer/company',   label: 'Компания',    icon: Building2 },
-  { to: '/employer/hiring-needs', label: 'Потребности', icon: Briefcase },
+  { to: '/employer',              label: 'Обзор',        icon: LayoutDashboard, end: true },
+  { to: '/employer/company',      label: 'Компания',     icon: Building2 },
+  { to: '/employer/hiring-needs', label: 'Потребности',  icon: Briefcase },
+  { to: '/employer/vacancies',    label: 'Вакансии',     icon: FileText },
 ]
 
 export function EmployerLayout() {
@@ -25,7 +27,6 @@ export function EmployerLayout() {
 
   return (
     <div className="flex min-h-screen bg-fsp-violet text-white">
-      {/* Sidebar */}
       <aside className="flex w-64 shrink-0 flex-col border-r border-white/10 bg-black/20 p-4">
         <div className="mb-8 flex items-center gap-2 px-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-fsp-pink font-black">
@@ -70,7 +71,6 @@ export function EmployerLayout() {
         </div>
       </aside>
 
-      {/* Content */}
       <main className="flex-1 overflow-auto p-8">
         <Outlet />
       </main>
