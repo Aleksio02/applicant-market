@@ -20,14 +20,17 @@ import com.maboy.applicantmarket.assessment.service.evaluation.AnswerEvaluator;
 import com.maboy.applicantmarket.assessment.service.evaluation.AnswerEvaluatorRegistry;
 import com.maboy.applicantmarket.assessment.service.generation.AssessmentSessionGenerator;
 import com.maboy.applicantmarket.assessment.service.grading.AssessmentGradingService;
+import com.maboy.applicantmarket.assessment.service.grading.GradeResolver;
 import com.maboy.applicantmarket.assessment.service.grading.GradingOutcome;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentAnswerAlreadyExistsException;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentCooldownException;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentItemNotFoundException;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentNotReadyForCompletionException;
+import com.maboy.applicantmarket.commons.exception.assessment.AssessmentRetryCooldownException;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentSessionAlreadyActiveException;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentSessionExpiredException;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentSessionNotFoundException;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -37,7 +40,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -58,6 +60,7 @@ public class AssessmentSessionService {
     private final AssessmentSessionGenerator sessionGenerator;
     private final AnswerEvaluatorRegistry evaluatorRegistry;
     private final AssessmentGradingService gradingService;
+    private final GradeResolver gradeResolver;
 
     private final ApplicantModuleApi applicantModuleApi;
     private final AssessmentProperties properties;
@@ -69,15 +72,16 @@ public class AssessmentSessionService {
     @Transactional
     public AssessmentSession startSession(UUID userId, UUID skillId, UUID claimedGradeId) {
         UUID applicantId = applicantModuleApi.getApplicantIdByUserId(userId);
+        Instant now = Instant.now();
 
         // 1. Есть ли активная сессия по этому навыку?
-        Optional<AssessmentSessionDto> existing =
-            sessionDao.findByApplicantIdAndSkillIdAndStatusIn(applicantId, skillId, ACTIVE_STATUSES);
+        Optional<AssessmentSessionDto> existing = sessionDao
+            .findByApplicantIdAndSkillIdAndStatusIn(applicantId, skillId, ACTIVE_STATUSES);
         if (existing.isPresent()) {
             AssessmentSession active = sessionConverter.toModel(existing.get());
-            if (active.isExpired(Instant.now())) {
+            if (active.isExpired(now)) {
                 // lazy-expiry: закрываем старую и идём дальше
-                active.markExpired(Instant.now());
+                active.markExpired(now);
                 sessionConverter.applyModelToDto(active, existing.get());
                 sessionDao.save(existing.get());
             } else {
@@ -85,13 +89,38 @@ public class AssessmentSessionService {
             }
         }
 
-        // 2. Cooldown на смену грейда по навыку
+        // 2. Cooldown на смену грейда (applicant_skills.last_grade_change_at)
         if (!applicantModuleApi.canChangeGrade(applicantId, skillId)) {
             throw new AssessmentCooldownException(skillId);
         }
 
-        // 3. Создать и сохранить сессию
-        Instant now = Instant.now();
+        // 3. Retry cooldown: не даём сразу пересдавать тот же грейд или выше
+        Optional<AssessmentSessionDto> lastTerminal = sessionDao
+            .findTopByApplicantIdAndSkillIdAndStatusInOrderByCompletedAtDesc(
+                applicantId, skillId, List.of("COMPLETED", "FAILED"));
+        if (lastTerminal.isPresent()) {
+            AssessmentSessionDto last = lastTerminal.get();
+            Instant completedAt = last.getCompletedAt();
+            if (completedAt != null) {
+                Duration elapsed = Duration.between(completedAt, now);
+                Duration retryCooldown = properties.getSession().getRetryCooldown();
+                if (elapsed.compareTo(retryCooldown) < 0) {
+                    int newLevel = gradeResolver.getLevel(claimedGradeId);
+                    int lastLevel = gradeResolver.getLevel(last.getClaimedGradeId());
+                    if (newLevel >= lastLevel) {
+                        log.info("Retry cooldown blocked: applicant={}, skill={}, " +
+                                 "lastAttempt={}, elapsed={}, cooldown={}",
+                            applicantId, skillId, completedAt, elapsed, retryCooldown);
+                        throw new AssessmentRetryCooldownException(skillId, completedAt);
+                    }
+                    log.info("Retry allowed on lower grade: applicant={}, skill={}, " +
+                             "last={}, new={}",
+                        applicantId, skillId, last.getClaimedGradeId(), claimedGradeId);
+                }
+            }
+        }
+
+        // 4. Создать и сохранить сессию
         Instant expiresAt = now.plus(properties.getSession().getExpiresIn());
 
         AssessmentSession session = AssessmentSession.builder()
@@ -108,20 +137,20 @@ public class AssessmentSessionService {
         } catch (DataIntegrityViolationException e) {
             // Параллельный запрос успел создать активную сессию раньше.
             // Партиальный unique index uq_assessment_sessions_active не дал вставить вторую.
-            log.warn("Concurrent active session creation for applicant={}, skill={}",
-                applicantId, skillId);
             UUID winnerId = sessionDao
                 .findByApplicantIdAndSkillIdAndStatusIn(applicantId, skillId, ACTIVE_STATUSES)
                 .map(AssessmentSessionDto::getId)
                 .orElse(null);
+            log.warn("Concurrent active session creation for applicant={}, skill={}",
+                applicantId, skillId);
             throw new AssessmentSessionAlreadyActiveException(winnerId);
         }
         AssessmentSession persisted = sessionConverter.toModel(sessionEntity);
 
-        // 4. Сгенерировать items
+        // 5. Сгенерировать items
         List<AssessmentItem> items = sessionGenerator.generateFor(skillId, claimedGradeId);
 
-        // 5. Проставить sessionId и сохранить
+        // 6. Проставить sessionId и сохранить
         List<AssessmentItemDto> itemEntities = new ArrayList<>(items.size());
         for (AssessmentItem item : items) {
             item.setSessionId(persisted.getId());
@@ -130,8 +159,7 @@ public class AssessmentSessionService {
         itemDao.saveAll(itemEntities);
 
         log.info("Assessment session started: id={}, applicant={}, skill={}, claimed={}, items={}",
-            persisted.getId(), applicantId, skillId, claimedGradeId, items.size()
-        );
+            persisted.getId(), applicantId, skillId, claimedGradeId, items.size());
 
         return persisted;
     }

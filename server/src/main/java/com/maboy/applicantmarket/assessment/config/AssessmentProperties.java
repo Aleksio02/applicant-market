@@ -18,6 +18,7 @@ public class AssessmentProperties {
     private Generation generation = new Generation();
     private Grading grading = new Grading();
 
+    @PostConstruct
     void validate() {
         int sum = generation.getDistribution().getBelowClaimed()
                   + generation.getDistribution().getClaimed()
@@ -54,6 +55,7 @@ public class AssessmentProperties {
 
         private Duration expiresIn = Duration.ofHours(2);
         private Duration gracePeriod = Duration.ZERO;
+        private Duration retryCooldown = Duration.ofDays(30);
     }
 
     @Getter

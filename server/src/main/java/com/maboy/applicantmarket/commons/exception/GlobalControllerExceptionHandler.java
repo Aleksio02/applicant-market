@@ -4,6 +4,7 @@ import com.maboy.applicantmarket.commons.exception.assessment.AssessmentAnswerAl
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentCooldownException;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentItemNotFoundException;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentNotReadyForCompletionException;
+import com.maboy.applicantmarket.commons.exception.assessment.AssessmentRetryCooldownException;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentSessionAlreadyActiveException;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentSessionExpiredException;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentSessionNotFoundException;
@@ -131,6 +132,13 @@ public class GlobalControllerExceptionHandler {
         // Не хватает активных шаблонов под запрошенный difficulty.
         // Пользователю нечего тут делать, это проблема наполнения.
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal configuration error");
+    }
+
+    @ExceptionHandler(AssessmentRetryCooldownException.class)
+    public ResponseEntity<Map<String, Object>> handleAssessmentRetryCooldown(
+        AssessmentRetryCooldownException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(Map.of("message", e.getMessage()));
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message) {

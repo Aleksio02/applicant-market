@@ -54,6 +54,7 @@ assessment:
   session:
     expires-in: 2h
     grace-period: 0s
+    retry-cooldown: 30d
 
   generation:
     total-items: 8
