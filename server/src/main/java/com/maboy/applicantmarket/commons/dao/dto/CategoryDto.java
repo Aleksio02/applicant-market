@@ -1,23 +1,19 @@
 package com.maboy.applicantmarket.commons.dao.dto;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Instant;
 import java.util.UUID;
 
-@Entity
-@Table(name = "categories")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class CategoryDto {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+@Entity
+@Table(schema = "public", name = "categories")
+public class CategoryDto extends AbstractEntityDto {
 
     @Column(name = "specialization_id", nullable = false)
     private UUID specializationId;
@@ -25,10 +21,10 @@ public class CategoryDto {
     @Column(name = "grade_id", nullable = false)
     private UUID gradeId;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, unique = true)
     private String code;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String name;
 
     @Column(name = "is_active", nullable = false)

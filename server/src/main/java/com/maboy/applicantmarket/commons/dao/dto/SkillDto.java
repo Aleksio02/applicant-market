@@ -1,31 +1,26 @@
 package com.maboy.applicantmarket.commons.dao.dto;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Instant;
-import java.util.UUID;
 
-@Entity
-@Table(name = "skills")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class SkillDto {
+@Entity
+@Table(schema = "public", name = "skills")
+public class SkillDto extends AbstractEntityDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
-    @Column(nullable = false, unique = true, length = 64)
+    @Column(nullable = false, unique = true)
     private String code;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, length = 32)
+    @Column(nullable = false)
     private String category;
 
     @Column(name = "is_active", nullable = false)
