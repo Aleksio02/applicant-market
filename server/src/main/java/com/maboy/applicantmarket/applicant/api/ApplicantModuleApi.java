@@ -15,4 +15,6 @@ public interface ApplicantModuleApi {
     boolean hasFspHistory(UUID applicantId);
     List<FspAchievementRef> getFspAchievements(UUID applicantId);
     List<UUID> findApplicantIdsBySkillAndGrade(UUID skillId, UUID gradeId);
+    UUID getApplicantIdByUserId(UUID userId);
+    boolean canChangeGrade(UUID applicantId, UUID skillId);
 }

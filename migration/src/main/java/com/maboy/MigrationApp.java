@@ -23,6 +23,7 @@ public class MigrationApp {
         Flyway flyway = Flyway.configure()
             .dataSource(datasource.getUrl(), datasource.getUsername(), datasource.getPassword())
             .locations("classpath:migration")
+            .placeholderReplacement(false)
             .load();
 
         flyway.migrate();

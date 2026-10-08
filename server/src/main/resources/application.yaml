@@ -49,3 +49,30 @@ app:
 applicant:
   grade-change:
     cooldown: 90d
+
+assessment:
+  session:
+    expires-in: 2h
+    grace-period: 0s
+    retry-cooldown: 30d
+
+  generation:
+    total-items: 8
+    distribution:
+      below-claimed: 2
+      claimed: 3
+      above-claimed: 2
+      random: 1
+    renderer-version: v1
+    max-attempts-per-template: 5
+    auto-deactivate-threshold: 5
+
+  grading:
+    grade-to-difficulty:
+      JUNIOR: 1
+      MIDDLE: 3
+      SENIOR: 4
+      LEAD: 5
+    thresholds:
+      pass: 0.5
+      promote: 0.8

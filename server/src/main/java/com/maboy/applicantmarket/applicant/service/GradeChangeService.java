@@ -1,6 +1,5 @@
 package com.maboy.applicantmarket.applicant.service;
 
-import com.maboy.applicantmarket.applicant.api.event.ApplicantSkillGradeChanged;
 import com.maboy.applicantmarket.applicant.config.GradeCooldownProperties;
 import com.maboy.applicantmarket.applicant.dao.ApplicantSkillDao;
 import com.maboy.applicantmarket.applicant.dao.GradeChangeHistoryDao;
@@ -8,8 +7,8 @@ import com.maboy.applicantmarket.applicant.dao.dto.ApplicantSkillDto;
 import com.maboy.applicantmarket.applicant.dao.dto.GradeChangeHistoryDto;
 import com.maboy.applicantmarket.commons.exception.GradeChangeCooldownException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
@@ -23,9 +22,8 @@ public class GradeChangeService {
     private final ApplicantSkillDao skillDao;
     private final GradeChangeHistoryDao historyDao;
     private final GradeCooldownProperties cooldownProperties;
-    private final ApplicationEventPublisher eventPublisher;
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void applyAssessmentResult(UUID applicantId, UUID skillId, UUID newGradeId) {
         ApplicantSkillDto skill = skillDao
                 .findByApplicantIdAndSkillId(applicantId, skillId)
@@ -59,7 +57,5 @@ public class GradeChangeService {
                 .toGradeId(newGradeId)
                 .reason("ASSESSMENT")
                 .build());
-        eventPublisher.publishEvent(new ApplicantSkillGradeChanged(
-            applicantId, skillId, fromGradeId, newGradeId, now));
     }
 }

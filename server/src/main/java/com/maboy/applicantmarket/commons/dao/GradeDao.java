@@ -14,4 +14,6 @@ public interface GradeDao extends JpaRepository<GradeDto, UUID> {
     Optional<GradeDto> findByCode(String code);
 
     List<GradeDto> findAllByOrderByLevelAsc();
+
+    Optional<GradeDto> findByLevel(int level);
 }
