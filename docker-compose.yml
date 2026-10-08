@@ -1,3 +1,9 @@
+# Запуск с контейнеризацией контейнеров (prod)
+#   docker compose -f docker-compose.yml -f docker-compose-apps.yml up -d --build
+#
+# Запуск без приложений
+# docker compose up -d
+
 services:
   postgres:
     container_name: am_db
@@ -11,6 +17,12 @@ services:
     volumes:
       - am_data:/var/lib/postgresql/data
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U applicant_market -d applicant_market" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   redis:
     container_name: am_cache
@@ -18,6 +30,14 @@ services:
     command: redis-server --save 20 1 --loglevel warning --requirepass am_token
     ports:
       - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-a", "am_token", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
 
 volumes:
   am_data:
