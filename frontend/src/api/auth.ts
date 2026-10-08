@@ -10,14 +10,14 @@ import type {
 
 export const authApi = {
   register: (payload: RegisterRequest) =>
-    api.post<RegisterResponse>('/api/auth/register', payload).then((r) => r.data),
+    api.post<RegisterResponse>('/auth/register', payload).then((r) => r.data),
 
   confirmEmail: (payload: ConfirmEmailRequest) =>
-    api.post<AuthResponse>('/api/auth/confirm-email', payload).then((r) => r.data),
+    api.post<AuthResponse>('/auth/confirm-email', payload).then((r) => r.data),
 
   login: (payload: AuthorizationRequest) =>
-    api.post<AuthResponse>('/api/auth/login', payload).then((r) => r.data),
+    api.post<AuthResponse>('/auth/login', payload).then((r) => r.data),
 
   validateSession: () =>
-    api.get<SessionPayload>('/api/auth/validateSession').then((r) => r.data),
+    api.get<SessionPayload>('/auth/validateSession').then((r) => r.data),
 }

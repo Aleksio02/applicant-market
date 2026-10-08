@@ -2,8 +2,8 @@ import axios, { AxiosError } from 'axios'
 import type { ErrorResponse } from '@/shared/types/api'
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:8080',
-  withCredentials: true, // критично: бэк ставит httpOnly cookie sessionId
+  baseURL: import.meta.env.VITE_API_URL || '/api',
+  withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 })
 

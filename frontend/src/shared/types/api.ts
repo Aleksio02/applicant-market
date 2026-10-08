@@ -2,7 +2,7 @@
 export type Role = 'APPLICANT' | 'EMPLOYER'
 export type UserStatus = 'PENDING_EMAIL' | 'ACTIVE' | 'BLOCKED'
 export type ConsentType = 'DATA_PROCESSING' | 'PROFILE_PUBLICATION' | 'CONTACT_REVEAL'
-
+export type UUID = string
 // ===== User =====
 export interface User {
   id: string
