@@ -12,6 +12,7 @@ import com.maboy.applicantmarket.commons.exception.IncorrectRequestDataException
 import com.maboy.applicantmarket.commons.exception.NotFoundException;
 import com.maboy.applicantmarket.commons.model.Grade;
 import com.maboy.applicantmarket.commons.model.Specialization;
+import com.maboy.applicantmarket.commons.model.response.PageResponse;
 import com.maboy.applicantmarket.employer.service.CompanyService;
 import com.maboy.applicantmarket.vacancy.converter.VacancyConverter;
 import com.maboy.applicantmarket.vacancy.dao.VacancyDao;
@@ -88,22 +89,22 @@ public class VacancyServiceImpl implements VacancyService {
     }
 
     @Override
-    public List<Vacancy> getListForApplicant(GetVacancyListRequest request) {
+    public PageResponse<Vacancy> getListForApplicant(GetVacancyListRequest request) {
         Pageable pageable = buildPageable(request);
         Specification<VacancyDto> spec = buildSpecification(request, null, VacancyStatus.PUBLISHED);
         Page<VacancyDto> found = vacancyDao.findAll(spec, pageable);
-        return toModelList(found);
+        return toPageResponse(found);
     }
 
     @Override
-    public List<Vacancy> getListForEmployer(UUID ownerId, GetVacancyListRequest request) {
+    public PageResponse<Vacancy> getListForEmployer(UUID ownerId, GetVacancyListRequest request) {
         authService.requireEmployer(ownerId);
         UUID companyId = companyService.getCompanyIdByOwner(ownerId);
         Pageable pageable = buildPageable(request);
 
         Specification<VacancyDto> spec = buildSpecification(request, companyId, request.getStatus());
         Page<VacancyDto> found = vacancyDao.findAll(spec, pageable);
-        return toModelList(found);
+        return toPageResponse(found);
     }
 
     @Override
@@ -112,7 +113,12 @@ public class VacancyServiceImpl implements VacancyService {
                 .orElseThrow(() -> new NotFoundException("Vacancy not found"));
 
         if (dto.getStatus() != VacancyStatus.PUBLISHED) {
-            UUID companyId = companyService.getCompanyIdByOwner(requesterId);
+            UUID companyId;
+            try {
+                companyId = companyService.getCompanyIdByOwner(requesterId);
+            } catch (NotFoundException e) {
+                throw new AccessForbiddenException("Vacancy is not published");
+            }
             if (!companyId.equals(dto.getCompanyId())) {
                 throw new AccessForbiddenException("Vacancy is not published");
             }
@@ -251,12 +257,18 @@ public class VacancyServiceImpl implements VacancyService {
         };
     }
 
-    private List<Vacancy> toModelList(Page<VacancyDto> page) {
-        List<Vacancy> result = new ArrayList<>(page.getNumberOfElements());
+    private PageResponse<Vacancy> toPageResponse(Page<VacancyDto> page) {
+        List<Vacancy> content = new ArrayList<>(page.getNumberOfElements());
         for (VacancyDto dto : page) {
-            result.add(toModel(dto));
+            content.add(toModel(dto));
         }
-        return result;
+        return PageResponse.<Vacancy>builder()
+                .content(content)
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .page(page.getNumber())
+                .pageSize(page.getSize())
+                .build();
     }
 
     private Vacancy toModel(VacancyDto dto) {
