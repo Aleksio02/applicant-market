@@ -27,7 +27,7 @@ public class AssignmentAttemptController {
         this.attemptService = attemptService;
     }
 
-    @PostMapping("/assignment/{assignmentId}/start")
+    @PostMapping("/{assignmentId}/start")
     public AssignmentAttempt start(@PathVariable UUID assignmentId,
                                    @CurrentUser UUID candidateId) {
         return attemptService.start(candidateId, assignmentId);
@@ -51,7 +51,7 @@ public class AssignmentAttemptController {
         return attemptService.getMine(candidateId);
     }
 
-    @GetMapping("/assignment/{assignmentId}")
+    @GetMapping("/by-assignment/{assignmentId}")
     public List<AssignmentAttempt> getByAssignment(@PathVariable UUID assignmentId,
                                                    @CurrentUser UUID ownerId) {
         return attemptService.getByAssignment(ownerId, assignmentId);
