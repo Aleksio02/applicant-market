@@ -1,6 +1,7 @@
 package com.maboy.applicantmarket.employer.controller;
 
 import com.maboy.applicantmarket.auth.config.annotation.CurrentUser;
+import com.maboy.applicantmarket.commons.model.response.PageResponse;
 import com.maboy.applicantmarket.employer.model.HiringNeed;
 import com.maboy.applicantmarket.employer.model.request.CreateHiringNeedRequest;
 import com.maboy.applicantmarket.employer.model.request.GetHiringNeedListRequest;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -35,8 +35,8 @@ public class HiringNeedController {
     }
 
     @GetMapping
-    public List<HiringNeed> getList(GetHiringNeedListRequest request,
-                                    @CurrentUser UUID ownerId) {
+    public PageResponse<HiringNeed> getList(GetHiringNeedListRequest request,
+                                            @CurrentUser UUID ownerId) {
         return hiringNeedService.getList(ownerId, request);
     }
 
@@ -51,6 +51,12 @@ public class HiringNeedController {
                              @Valid @RequestBody UpdateHiringNeedRequest request,
                              @CurrentUser UUID ownerId) {
         return hiringNeedService.update(ownerId, id, request);
+    }
+
+    @PatchMapping("/{id}/activate")
+    public HiringNeed activate(@PathVariable UUID id,
+                               @CurrentUser UUID ownerId) {
+        return hiringNeedService.activate(ownerId, id);
     }
 
     @PatchMapping("/{id}/deactivate")
