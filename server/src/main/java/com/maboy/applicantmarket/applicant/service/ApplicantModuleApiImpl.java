@@ -5,6 +5,7 @@ import com.maboy.applicantmarket.applicant.api.model.ApplicantPrimarySkill;
 import com.maboy.applicantmarket.applicant.api.model.ApplicantSkillRef;
 import com.maboy.applicantmarket.applicant.api.model.ApplicantSummary;
 import com.maboy.applicantmarket.applicant.api.model.FspAchievementRef;
+import com.maboy.applicantmarket.applicant.config.GradeCooldownProperties;
 import com.maboy.applicantmarket.applicant.dao.ApplicantPrivacySettingsDao;
 import com.maboy.applicantmarket.applicant.dao.ApplicantProfileDao;
 import com.maboy.applicantmarket.applicant.dao.ApplicantSkillDao;
@@ -13,6 +14,8 @@ import com.maboy.applicantmarket.applicant.dao.dto.ApplicantPrivacySettingsDto;
 import com.maboy.applicantmarket.applicant.dao.dto.ApplicantProfileDto;
 import com.maboy.applicantmarket.applicant.dao.dto.ApplicantSkillDto;
 import com.maboy.applicantmarket.commons.exception.ApplicantNotFoundException;
+import java.time.Duration;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,7 @@ public class ApplicantModuleApiImpl implements ApplicantModuleApi {
     private final ApplicantSkillDao skillDao;
     private final ApplicantPrivacySettingsDao privacyDao;
     private final FspAchievementStubDao fspDao;
+    private final GradeCooldownProperties gradeCooldownProperties;
 
     @Override
     public ApplicantSummary getSummary(UUID applicantId) {
@@ -96,6 +100,25 @@ public class ApplicantModuleApiImpl implements ApplicantModuleApi {
             return List.of();
         }
         return skillDao.findApplicantIdsBySkillAndGrade(skillId, gradeId);
+    }
+
+    @Override
+    public UUID getApplicantIdByUserId(UUID userId) {
+        return profileDao.findByUserId(userId)
+            .map(ApplicantProfileDto::getId)
+            .orElseThrow(() -> new ApplicantNotFoundException("Profile not found for user " + userId));
+    }
+
+    @Override
+    public boolean canChangeGrade(UUID applicantId, UUID skillId) {
+        return skillDao.findByApplicantIdAndSkillId(applicantId, skillId)
+            .map(skill -> {
+                if (skill.getLastGradeChangeAt() == null) return true;
+                Duration cooldown = Duration.ofDays(gradeCooldownProperties.getCooldown().toDays());
+                return Duration.between(skill.getLastGradeChangeAt(), Instant.now())
+                           .compareTo(cooldown) >= 0;
+            })
+            .orElse(false); // навыка нет — менять грейд нечему
     }
 
     private String buildDisplayName(ApplicantProfileDto p) {

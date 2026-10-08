@@ -5,6 +5,8 @@ import com.maboy.applicantmarket.applicant.service.GradeChangeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Configuration
 @RequiredArgsConstructor
@@ -12,7 +14,7 @@ public class ApplicantEventsConfig {
 
     private final GradeChangeService gradeChangeService;
 
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onAssessmentCompleted(AssessmentCompleted event) {
         gradeChangeService.applyAssessmentResult(
                 event.applicantId(),
