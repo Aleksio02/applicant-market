@@ -1,6 +1,7 @@
 package com.maboy.applicantmarket.vacancy.controller;
 
 import com.maboy.applicantmarket.auth.config.annotation.CurrentUser;
+import com.maboy.applicantmarket.commons.model.response.PageResponse;
 import com.maboy.applicantmarket.vacancy.model.Vacancy;
 import com.maboy.applicantmarket.vacancy.model.request.CreateVacancyRequest;
 import com.maboy.applicantmarket.vacancy.model.request.GetVacancyListRequest;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -35,13 +35,13 @@ public class VacancyController {
     }
 
     @GetMapping
-    public List<Vacancy> getPublished(GetVacancyListRequest request) {
+    public PageResponse<Vacancy> getPublished(GetVacancyListRequest request) {
         return vacancyService.getListForApplicant(request);
     }
 
     @GetMapping("/mine")
-    public List<Vacancy> getMine(GetVacancyListRequest request,
-                                 @CurrentUser UUID ownerId) {
+    public PageResponse<Vacancy> getMine(GetVacancyListRequest request,
+                                         @CurrentUser UUID ownerId) {
         return vacancyService.getListForEmployer(ownerId, request);
     }
 
