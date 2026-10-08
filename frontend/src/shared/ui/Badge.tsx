@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/shared/lib/cn'
 
-type Variant = 'default' | 'pink' | 'lilac' | 'success' | 'muted' | 'danger'
+type Variant = 'default' | 'pink' | 'lilac' | 'success' | 'muted' | 'danger' | 'warning'
 
 interface BadgeProps {
   children: ReactNode
@@ -16,6 +16,7 @@ const variants: Record<Variant, string> = {
   success: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
   muted:   'bg-white/5 text-white/50 border-white/10',
   danger:  'bg-red-500/15 text-red-300 border-red-500/30',
+  warning: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
 }
 
 export function Badge({ children, variant = 'default', className }: BadgeProps) {

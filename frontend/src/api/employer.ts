@@ -1,4 +1,4 @@
-import { api } from './client'
+import { api, ApiError } from './client'
 import type {
   Company,
   CreateCompanyRequest,
@@ -9,7 +9,30 @@ import type {
   GetHiringNeedListParams,
 } from '@/shared/types/employer'
 
+// Извлекает массив из ответа: если Spring вернул Page<> — берём .content
+function asArray<T>(data: unknown): T[] {
+  if (Array.isArray(data)) return data as T[]
+  if (data && typeof data === 'object' && 'content' in data) {
+    const c = (data as { content: unknown }).content
+    if (Array.isArray(c)) return c as T[]
+  }
+  return []
+}
+
+async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    return await fn()
+  } catch (err) {
+    if (err instanceof ApiError && err.status >= 500) {
+      console.warn('[employerApi] 5xx, fallback:', err.message)
+      return fallback
+    }
+    throw err
+  }
+}
+
 export const employerApi = {
+  // ===== Company =====
   getMyCompany: () =>
     api.get<Company>('/employer/company/me').then((r) => r.data),
 
@@ -19,10 +42,15 @@ export const employerApi = {
   updateCompany: (payload: UpdateCompanyRequest) =>
     api.patch<Company>('/employer/company/me', payload).then((r) => r.data),
 
+  // ===== Hiring Needs =====
   listHiringNeeds: (params: GetHiringNeedListParams = {}) =>
-    api
-      .get<HiringNeed[]>('/employer/hiring-need', { params })
-      .then((r) => r.data),
+    safe(
+      () =>
+        api
+          .get('/employer/hiring-need', { params })
+          .then((r) => asArray<HiringNeed>(r.data)),
+      []
+    ),
 
   createHiringNeed: (payload: CreateHiringNeedRequest) =>
     api.post<HiringNeed>('/employer/hiring-need', payload).then((r) => r.data),
