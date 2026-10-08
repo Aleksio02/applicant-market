@@ -18,6 +18,7 @@ import com.maboy.applicantmarket.commons.exception.NotFoundException;
 import com.maboy.applicantmarket.employer.service.CompanyService;
 import com.maboy.applicantmarket.interaction.api.InteractionModuleApi;
 import com.maboy.applicantmarket.vacancy.service.VacancyService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Primary
 @Service
 public class AssignmentAttemptServiceImpl implements AssignmentAttemptService {
@@ -186,11 +188,20 @@ public class AssignmentAttemptServiceImpl implements AssignmentAttemptService {
 
         // Если задание пройдено — создаём отклик от кандидата на вакансию.
         // Метод идемпотентен: если активный отклик уже есть, новый не создаётся.
+        // Ошибка при создании отклика не должна откатывать оценку задания —
+        // оценка важнее, отклик вторичен.
         if (saved.getVerdict() == EvaluationVerdict.PASS) {
-            interactionModuleApi.createApplicationFromAssignment(
-                    saved.getCandidateId(),
-                    saved.getAssignment().getVacancyId()
-            );
+            try {
+                interactionModuleApi.createApplicationFromAssignment(
+                        saved.getCandidateId(),
+                        saved.getAssignment().getVacancyId()
+                );
+            } catch (Exception e) {
+                log.warn("Failed to auto-create application for candidate={}, vacancy={}",
+                        saved.getCandidateId(),
+                        saved.getAssignment().getVacancyId(),
+                        e);
+            }
         }
 
         return toModel(saved);

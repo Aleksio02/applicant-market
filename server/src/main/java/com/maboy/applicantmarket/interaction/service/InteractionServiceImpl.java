@@ -7,8 +7,11 @@ import com.maboy.applicantmarket.commons.dao.UserDao;
 import com.maboy.applicantmarket.commons.dao.dto.UserDto;
 import com.maboy.applicantmarket.commons.exception.AccessForbiddenException;
 import com.maboy.applicantmarket.commons.exception.AlreadyExistsException;
+import com.maboy.applicantmarket.commons.exception.ApplicantNotFoundException;
 import com.maboy.applicantmarket.commons.exception.IncorrectRequestDataException;
 import com.maboy.applicantmarket.commons.exception.NotFoundException;
+import com.maboy.applicantmarket.commons.model.Role;
+import com.maboy.applicantmarket.commons.model.UserStatus;
 import com.maboy.applicantmarket.employer.service.CompanyService;
 import com.maboy.applicantmarket.interaction.converter.InteractionConverter;
 import com.maboy.applicantmarket.interaction.dao.InteractionDao;
@@ -20,7 +23,9 @@ import com.maboy.applicantmarket.interaction.model.request.CreateApplicationRequ
 import com.maboy.applicantmarket.interaction.model.request.CreateInvitationRequest;
 import com.maboy.applicantmarket.interaction.model.response.ContactInfo;
 import com.maboy.applicantmarket.vacancy.model.Vacancy;
+import com.maboy.applicantmarket.vacancy.model.enums.VacancyStatus;
 import com.maboy.applicantmarket.vacancy.service.VacancyService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Primary
 @Service
 public class InteractionServiceImpl implements InteractionService {
@@ -66,20 +72,20 @@ public class InteractionServiceImpl implements InteractionService {
         authService.requireEmployer(ownerId);
         UUID companyId = companyService.getCompanyIdByOwner(ownerId);
 
-        requireCandidateExists(request.getCandidateId());
+        requireActiveCandidate(request.getCandidateId());
 
         Long salaryFrom = request.getSalaryFrom();
         Long salaryTo = request.getSalaryTo();
 
         if (request.getVacancyId() != null) {
             Vacancy vacancy = vacancyService.getById(ownerId, request.getVacancyId());
-            if (vacancy.getStatus() != com.maboy.applicantmarket.vacancy.model.enums.VacancyStatus.PUBLISHED) {
+            if (vacancy.getStatus() != VacancyStatus.PUBLISHED) {
                 throw new IncorrectRequestDataException("Vacancy is not published");
             }
             if (!vacancy.getCompanyId().equals(companyId)) {
                 throw new AccessForbiddenException("Vacancy belongs to another company");
             }
-            // Зарплата берётся из вакансии
+            // Зарплата берётся из вакансии, значения из тела игнорируются.
             salaryFrom = vacancy.getSalaryFrom();
             salaryTo = vacancy.getSalaryTo();
         }
@@ -189,7 +195,7 @@ public class InteractionServiceImpl implements InteractionService {
         authService.requireApplicant(candidateId);
 
         Vacancy vacancy = vacancyService.getById(candidateId, vacancyId);
-        if (vacancy.getStatus() != com.maboy.applicantmarket.vacancy.model.enums.VacancyStatus.PUBLISHED) {
+        if (vacancy.getStatus() != VacancyStatus.PUBLISHED) {
             throw new IncorrectRequestDataException("Vacancy is not published");
         }
 
@@ -310,12 +316,6 @@ public class InteractionServiceImpl implements InteractionService {
     }
 
     @Override
-    @Transactional
-    public Interaction markViewed(UUID requesterId, UUID interactionId) {
-        return getById(requesterId, interactionId);
-    }
-
-    @Override
     public ContactInfo getContacts(UUID ownerId, UUID interactionId) {
         authService.requireEmployer(ownerId);
         UUID companyId = companyService.getCompanyIdByOwner(ownerId);
@@ -327,22 +327,18 @@ public class InteractionServiceImpl implements InteractionService {
             throw new AccessForbiddenException("Contacts are not revealed yet");
         }
 
-        // Email из users
         UserDto user = userDao.findById(dto.getCandidateId())
                 .orElseThrow(() -> new NotFoundException("Candidate not found"));
 
         ContactInfo.ContactInfoBuilder builder = ContactInfo.builder()
                 .email(user.getEmail());
 
-        // Имя и телефон из applicant. Если профиля нет или privacy запрещает телефон — только email.
+        // Имя из applicant. Если профиля нет — оставляем только email.
         try {
             ApplicantSummary summary = applicantModuleApi.getSummary(dto.getCandidateId());
             builder.displayName(summary.getDisplayName());
-            // Телефон раскрываем только если кандидат разрешил показ контактов после принятия.
-            // showContactsAfterAccept в applicant уже учитывается внутри модуля.
-            // Если ApplicantSummary не отдаёт телефон напрямую, оставляем null.
-        } catch (Exception ignored) {
-            // профиль не создан — оставляем без имени
+        } catch (ApplicantNotFoundException ignored) {
+            log.debug("Applicant profile not found for user={}", dto.getCandidateId());
         }
 
         return builder.build();
@@ -362,15 +358,23 @@ public class InteractionServiceImpl implements InteractionService {
 
     private void requireStatusTransition(InteractionDto dto, InteractionStatus target) {
         if (dto.getStatus() != InteractionStatus.SENT && dto.getStatus() != InteractionStatus.VIEWED) {
-            throw new IncorrectRequestDataException("Interaction cannot be changed from status " + dto.getStatus());
+            throw new IncorrectRequestDataException(
+                    "Interaction is already in terminal state: " + dto.getStatus());
         }
     }
 
-    private void requireCandidateExists(UUID candidateId) {
+    /**
+     * Приглашать можно только существующего активного пользователя с ролью APPLICANT.
+     * PENDING_EMAIL и BLOCKED отсекаются — им бессмысленно слать приглашение.
+     */
+    private void requireActiveCandidate(UUID candidateId) {
         UserDto user = userDao.findById(candidateId)
                 .orElseThrow(() -> new NotFoundException("Candidate not found"));
-        if (user.getRole() != com.maboy.applicantmarket.commons.model.Role.APPLICANT) {
+        if (user.getRole() != Role.APPLICANT) {
             throw new IncorrectRequestDataException("User is not applicant");
+        }
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw new IncorrectRequestDataException("Candidate is not active");
         }
     }
 

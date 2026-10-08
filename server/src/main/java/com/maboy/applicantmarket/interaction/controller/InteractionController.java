@@ -112,12 +112,6 @@ public class InteractionController {
         return interactionService.getById(requesterId, id);
     }
 
-    @PatchMapping("/{id}/viewed")
-    public Interaction markViewed(@PathVariable UUID id,
-                                  @CurrentUser UUID requesterId) {
-        return interactionService.markViewed(requesterId, id);
-    }
-
     @GetMapping("/{id}/contacts")
     public ContactInfo getContacts(@PathVariable UUID id,
                                    @CurrentUser UUID ownerId) {

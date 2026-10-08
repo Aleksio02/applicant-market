@@ -28,6 +28,5 @@ public interface InteractionService {
 
     // Общее
     Interaction getById(UUID requesterId, UUID interactionId);
-    Interaction markViewed(UUID requesterId, UUID interactionId);
     ContactInfo getContacts(UUID ownerId, UUID interactionId);
 }
