@@ -11,6 +11,7 @@ import com.maboy.applicantmarket.commons.exception.IncorrectRequestDataException
 import com.maboy.applicantmarket.commons.exception.NotFoundException;
 import com.maboy.applicantmarket.commons.model.Grade;
 import com.maboy.applicantmarket.commons.model.Specialization;
+import com.maboy.applicantmarket.commons.model.response.PageResponse;
 import com.maboy.applicantmarket.employer.converter.HiringNeedConverter;
 import com.maboy.applicantmarket.employer.dao.CompanyDao;
 import com.maboy.applicantmarket.employer.dao.HiringNeedDao;
@@ -87,7 +88,7 @@ public class HiringNeedServiceImpl implements HiringNeedService {
     }
 
     @Override
-    public List<HiringNeed> getList(UUID ownerId, GetHiringNeedListRequest request) {
+    public PageResponse<HiringNeed> getList(UUID ownerId, GetHiringNeedListRequest request) {
         authService.requireEmployer(ownerId);
         CompanyDto company = requireCompany(ownerId);
 
@@ -99,11 +100,18 @@ public class HiringNeedServiceImpl implements HiringNeedService {
                 ? hiringNeedDao.findAllByCompanyIdAndActive(company.getId(), request.getActive(), pageable)
                 : hiringNeedDao.findAllByCompanyId(company.getId(), pageable);
 
-        List<HiringNeed> result = new ArrayList<>(found.getNumberOfElements());
+        List<HiringNeed> content = new ArrayList<>(found.getNumberOfElements());
         for (HiringNeedDto dto : found) {
-            result.add(toModel(dto));
+            content.add(toModel(dto));
         }
-        return result;
+
+        return PageResponse.<HiringNeed>builder()
+                .content(content)
+                .totalElements(found.getTotalElements())
+                .totalPages(found.getTotalPages())
+                .page(found.getNumber())
+                .pageSize(found.getSize())
+                .build();
     }
 
     @Override
@@ -147,6 +155,22 @@ public class HiringNeedServiceImpl implements HiringNeedService {
         request.getLocation().ifPresent(dto::setLocation);
 
         validateSalary(dto.getSalaryFrom(), dto.getSalaryTo());
+        dto.setUpdatedAt(Instant.now());
+
+        HiringNeedDto saved = hiringNeedDao.save(dto);
+        return toModel(saved);
+    }
+
+    @Override
+    @Transactional
+    public HiringNeed activate(UUID ownerId, UUID id) {
+        authService.requireEmployer(ownerId);
+        CompanyDto company = requireCompany(ownerId);
+
+        HiringNeedDto dto = hiringNeedDao.findByIdAndCompanyId(id, company.getId())
+                .orElseThrow(() -> new NotFoundException("Hiring need not found"));
+
+        dto.setActive(true);
         dto.setUpdatedAt(Instant.now());
 
         HiringNeedDto saved = hiringNeedDao.save(dto);
