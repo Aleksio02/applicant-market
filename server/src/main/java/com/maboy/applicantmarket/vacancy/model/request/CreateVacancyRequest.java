@@ -1,6 +1,7 @@
 package com.maboy.applicantmarket.vacancy.model.request;
 
 import com.maboy.applicantmarket.commons.model.enums.WorkFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -35,6 +36,8 @@ public class CreateVacancyRequest {
     @Positive(message = "Salary to must be positive")
     private Long salaryTo;
 
+    @Schema(description = "Формат работы: OFFICE — офис, REMOTE — удалённо, HYBRID — гибрид",
+            example = "REMOTE")
     @NotNull(message = "Format must not be null")
     private WorkFormat format;
 
