@@ -23,6 +23,9 @@ public interface AssessmentSessionDao extends JpaRepository<AssessmentSessionDto
     Optional<AssessmentSessionDto> findTopByApplicantIdAndSkillIdAndStatusInOrderByCompletedAtDesc(
         UUID applicantId, UUID skillId, List<String> statuses);
 
+    Optional<AssessmentSessionDto> findTopByApplicantIdAndSkillIdAndStatusOrderByCompletedAtDesc(
+        UUID applicantId, UUID skillId, String status);
+
     @Modifying
     @Query("""
         UPDATE AssessmentSessionDto s

@@ -12,6 +12,7 @@ import java.util.UUID;
 public class ApplicantSummary {
     private UUID applicantId;
     private String displayName;
+    private String city;
     private UUID primarySkillId;
     private UUID primaryGradeId;
     private Short experienceYears;
