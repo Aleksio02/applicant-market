@@ -2,6 +2,7 @@ package com.maboy.applicantmarket.auth.model.request;
 
 import com.maboy.applicantmarket.commons.model.ConsentType;
 import com.maboy.applicantmarket.commons.model.Role;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,9 +27,14 @@ public class RegisterRequest {
     @NotBlank(message = "Password must not be empty")
     private String password;
 
+    @Schema(description = "Роль пользователя: APPLICANT — соискатель, EMPLOYER — работодатель",
+            example = "APPLICANT")
     @NotNull(message = "Role must not be null")
     private Role role;
 
+    @Schema(description = "Список принятых согласий. DATA_PROCESSING обязателен. " +
+            "PROFILE_PUBLICATION и CONTACT_REVEAL опциональны на этапе регистрации.",
+            example = "[\"DATA_PROCESSING\"]")
     private List<ConsentType> acceptedConsents;
 
     public boolean validToRegistration() {
