@@ -20,7 +20,7 @@ import com.maboy.applicantmarket.assessment.service.evaluation.AnswerEvaluator;
 import com.maboy.applicantmarket.assessment.service.evaluation.AnswerEvaluatorRegistry;
 import com.maboy.applicantmarket.assessment.service.generation.AssessmentSessionGenerator;
 import com.maboy.applicantmarket.assessment.service.grading.AssessmentGradingService;
-import com.maboy.applicantmarket.assessment.service.grading.GradeResolver;
+import com.maboy.applicantmarket.commons.service.GradeResolver;
 import com.maboy.applicantmarket.assessment.service.grading.GradingOutcome;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentAnswerAlreadyExistsException;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentCooldownException;

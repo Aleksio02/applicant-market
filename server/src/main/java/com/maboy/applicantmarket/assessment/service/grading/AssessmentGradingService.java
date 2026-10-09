@@ -4,6 +4,7 @@ import com.maboy.applicantmarket.assessment.config.AssessmentProperties;
 import com.maboy.applicantmarket.assessment.model.AssessmentAnswer;
 import com.maboy.applicantmarket.assessment.model.AssessmentItem;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentNotReadyForCompletionException;
+import com.maboy.applicantmarket.commons.service.GradeResolver;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;

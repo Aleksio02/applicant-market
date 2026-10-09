@@ -1,4 +1,4 @@
-package com.maboy.applicantmarket.assessment.service.grading;
+package com.maboy.applicantmarket.commons.service;
 
 import com.maboy.applicantmarket.assessment.model.exception.GradeResolutionException;
 import com.maboy.applicantmarket.commons.dao.GradeDao;

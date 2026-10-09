@@ -1,27 +1,26 @@
 package com.maboy.applicantmarket.matching.service;
 
 import com.maboy.applicantmarket.applicant.api.ApplicantModuleApi;
-import com.maboy.applicantmarket.applicant.api.model.ApplicantSkillRef;
 import com.maboy.applicantmarket.applicant.api.model.ApplicantSummary;
-import com.maboy.applicantmarket.applicant.model.ApplicantSkill;
 import com.maboy.applicantmarket.commons.dao.GradeDao;
 import com.maboy.applicantmarket.commons.dao.SkillDao;
 import com.maboy.applicantmarket.commons.dao.dto.GradeDto;
 import com.maboy.applicantmarket.commons.dao.dto.SkillDto;
+import com.maboy.applicantmarket.commons.service.GradeResolver;
 import com.maboy.applicantmarket.matching.config.MatchingProperties;
 import com.maboy.applicantmarket.matching.model.RankFactors;
 import com.maboy.applicantmarket.matching.model.RankedCandidate;
 import com.maboy.applicantmarket.matching.model.ResolvedCategory;
 import com.maboy.applicantmarket.matching.model.request.CandidateSearchRequest;
-import com.maboy.applicantmarket.matching.service.grading.GradeResolver;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
