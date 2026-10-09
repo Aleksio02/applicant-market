@@ -40,6 +40,9 @@ public class AssessmentController {
     private final AssessmentItemConverter itemConverter;
     private final AssessmentAnswerDao answerDao;
 
+    // ============================================================
+    // START SESSION
+    // ============================================================
     @Operation(
             summary = "Начать сессию тестирования",
             description = """
@@ -72,6 +75,9 @@ public class AssessmentController {
         return sessionConverter.toResponse(session, items);
     }
 
+    // ============================================================
+    // GET SESSION
+    // ============================================================
     @Operation(
             summary = "Получить сессию",
             description = "Возвращает сессию и её задания. Правильные ответы не возвращаются никогда."
@@ -95,6 +101,9 @@ public class AssessmentController {
         return sessionConverter.toResponse(session, items);
     }
 
+    // ============================================================
+    // SUBMIT ANSWER
+    // ============================================================
     @Operation(
             summary = "Ответить на задание",
             description = "Принимает ответ на одно задание. Повторный ответ на то же задание запрещён."
@@ -118,6 +127,9 @@ public class AssessmentController {
         sessionService.submitAnswer(userId, id, request.getItemId(), request.getAnswer());
     }
 
+    // ============================================================
+    // COMPLETE SESSION
+    // ============================================================
     @Operation(
             summary = "Завершить сессию",
             description = """
@@ -152,6 +164,9 @@ public class AssessmentController {
                 .build();
     }
 
+    // ============================================================
+    // HISTORY
+    // ============================================================
     @Operation(
             summary = "История тестирований",
             description = "Возвращает все сессии текущего пользователя, отсортированные по дате старта (сначала новые)."
@@ -179,6 +194,12 @@ public class AssessmentController {
         return result;
     }
 
+    // ============================================================
+    // HELPERS
+    // ============================================================
+    /**
+     * Загружает items сессии и помечает отвеченные. correctAnswer в response не попадает никогда.
+     */
     private List<AssessmentItemResponse> buildItemResponses(UUID sessionId) {
         List<AssessmentItem> items = sessionService.loadItems(sessionId);
         if (items.isEmpty()) {
