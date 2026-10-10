@@ -1,5 +1,7 @@
 package com.maboy.applicantmarket.commons.exception;
 
+import com.maboy.applicantmarket.commons.exception.applicant.FspIdAlreadyLinkedException;
+import com.maboy.applicantmarket.commons.exception.applicant.GradeChangeCooldownException;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentAnswerAlreadyExistsException;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentCooldownException;
 import com.maboy.applicantmarket.commons.exception.assessment.AssessmentItemNotFoundException;

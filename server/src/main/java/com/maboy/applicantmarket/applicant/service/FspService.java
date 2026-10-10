@@ -6,7 +6,7 @@ import com.maboy.applicantmarket.applicant.dao.dto.ApplicantProfileDto;
 import com.maboy.applicantmarket.applicant.dao.dto.FspAchievementStubDto;
 import com.maboy.applicantmarket.applicant.model.FspAchievementStub;
 import com.maboy.applicantmarket.commons.exception.ApplicantNotFoundException;
-import com.maboy.applicantmarket.commons.exception.FspIdAlreadyLinkedException;
+import com.maboy.applicantmarket.commons.exception.applicant.FspIdAlreadyLinkedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
