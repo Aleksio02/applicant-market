@@ -6,10 +6,12 @@ import {
   ClipboardList,
   FileCheck2,
   GraduationCap,
+  Inbox,
   LayoutDashboard,
   Lock,
   LogOut,
   Search,
+  Send,
   Sparkles,
   User,
 } from 'lucide-react'
@@ -26,6 +28,8 @@ const NAV = [
   { to: '/applicant/category',    label: 'Категория',     icon: Award },
   { to: '/applicant/vacancies',   label: 'Вакансии',      icon: Search },
   { to: '/applicant/assignments', label: 'Задания',       icon: ClipboardList },
+  { to: '/applicant/invitations', label: 'Приглашения',   icon: Inbox },
+  { to: '/applicant/responses',   label: 'Мои отклики',   icon: Send },
   { to: '/applicant/fsp',         label: 'ФСП',           icon: BookOpen },
   { to: '/applicant/privacy',     label: 'Приватность',   icon: Lock },
 ]
@@ -49,7 +53,7 @@ export function ApplicantLayout() {
           <span className="font-bold">Applicant Market</span>
         </div>
 
-        <nav className="flex-1 space-y-1">
+        <nav className="flex-1 space-y-1 overflow-y-auto">
           {NAV.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}

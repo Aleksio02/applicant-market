@@ -18,6 +18,8 @@ import AssessmentPage from '@/pages/applicant/AssessmentPage'
 import AssessmentSessionPage from '@/pages/applicant/AssessmentSessionPage'
 import AssessmentResultPage from '@/pages/applicant/AssessmentResultPage'
 import AssignmentsPage from '@/pages/applicant/AssignmentsPage'
+import InvitationsPage from '@/pages/applicant/InvitationsPage'
+import MyApplicationsPage from '@/pages/applicant/MyApplicationsPage'
 
 // Employer
 import EmployerDashboard from '@/pages/employer/EmployerDashboard'
@@ -26,6 +28,8 @@ import HiringNeedsListPage from '@/pages/employer/HiringNeedsListPage'
 import HiringNeedFormPage from '@/pages/employer/HiringNeedFormPage'
 import VacanciesListPage from '@/pages/employer/VacanciesListPage'
 import VacancyFormPage from '@/pages/employer/VacancyFormPage'
+import OutgoingInvitationsPage from '@/pages/employer/OutgoingInvitationsPage'
+import IncomingApplicationsPage from '@/pages/employer/IncomingApplicationsPage'
 
 import { ApplicantLayout } from '@/shared/layout/ApplicantLayout'
 import { EmployerLayout } from '@/shared/layout/EmployerLayout'
@@ -57,6 +61,8 @@ export const router = createBrowserRouter([
           { path: '/applicant/vacancies',                element: <VacanciesPage /> },
           { path: '/applicant/vacancies/:id',            element: <VacancyDetailPage /> },
           { path: '/applicant/assignments',              element: <AssignmentsPage /> },
+          { path: '/applicant/invitations',              element: <InvitationsPage /> },
+          { path: '/applicant/responses',                element: <MyApplicationsPage /> },
         ],
       },
     ],
@@ -76,6 +82,8 @@ export const router = createBrowserRouter([
           { path: '/employer/vacancies',             element: <VacanciesListPage /> },
           { path: '/employer/vacancies/new',         element: <VacancyFormPage /> },
           { path: '/employer/vacancies/:id',         element: <VacancyFormPage /> },
+          { path: '/employer/invitations',           element: <OutgoingInvitationsPage /> },
+          { path: '/employer/responses',             element: <IncomingApplicationsPage /> },
         ],
       },
     ],
