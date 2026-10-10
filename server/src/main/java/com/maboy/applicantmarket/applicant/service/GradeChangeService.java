@@ -5,7 +5,7 @@ import com.maboy.applicantmarket.applicant.dao.ApplicantSkillDao;
 import com.maboy.applicantmarket.applicant.dao.GradeChangeHistoryDao;
 import com.maboy.applicantmarket.applicant.dao.dto.ApplicantSkillDto;
 import com.maboy.applicantmarket.applicant.dao.dto.GradeChangeHistoryDto;
-import com.maboy.applicantmarket.commons.exception.GradeChangeCooldownException;
+import com.maboy.applicantmarket.commons.exception.applicant.GradeChangeCooldownException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
