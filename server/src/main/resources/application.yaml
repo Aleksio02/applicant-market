@@ -13,17 +13,18 @@ spring:
       hibernate:
         default_schema: public
   mail:
-    protocol: smtps
-    host: smtp.example.com
+    host: smtp.yandex.ru
     port: 465
-    username: no-reply@example.com
-    password: change-me
+    username: applicant-market@yandex.ru
+    password: ${MAIL_PASSWORD}
+    protocol: smtps
     properties:
       mail:
         smtp:
           auth: true
           ssl:
             enable: true
+            trust: smtp.yandex.ru
   data:
     redis:
       host: localhost
@@ -40,7 +41,10 @@ spring:
 app:
   auth:
     email-confirmation:
-      enabled: false
+      enabled: true
+  mail:
+    enabled: true
+    from: applicant-market@yandex.ru
   consents:
     data-processing-version: 1
     profile-publication-version: 1
