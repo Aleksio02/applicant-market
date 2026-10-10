@@ -17,6 +17,7 @@ import VacancyDetailPage from '@/pages/applicant/VacancyDetailPage'
 import AssessmentPage from '@/pages/applicant/AssessmentPage'
 import AssessmentSessionPage from '@/pages/applicant/AssessmentSessionPage'
 import AssessmentResultPage from '@/pages/applicant/AssessmentResultPage'
+import AssignmentsPage from '@/pages/applicant/AssignmentsPage'
 
 // Employer
 import EmployerDashboard from '@/pages/employer/EmployerDashboard'
@@ -55,6 +56,7 @@ export const router = createBrowserRouter([
           { path: '/applicant/category',                 element: <CategoryPage /> },
           { path: '/applicant/vacancies',                element: <VacanciesPage /> },
           { path: '/applicant/vacancies/:id',            element: <VacancyDetailPage /> },
+          { path: '/applicant/assignments',              element: <AssignmentsPage /> },
         ],
       },
     ],
