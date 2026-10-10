@@ -7,17 +7,19 @@ import {
   Briefcase,
   LogOut,
   Mail,
+  Search,
 } from 'lucide-react'
 import { useAuth } from '@/features/auth/useAuth'
 import { cn } from '@/shared/lib/cn'
 
 const NAV = [
-  { to: '/employer',              label: 'Обзор',        icon: LayoutDashboard, end: true },
-  { to: '/employer/company',      label: 'Компания',     icon: Building2 },
-  { to: '/employer/hiring-needs', label: 'Потребности',  icon: Briefcase },
-  { to: '/employer/vacancies',    label: 'Вакансии',     icon: FileText },
-  { to: '/employer/invitations',  label: 'Приглашения',  icon: Mail },
-  { to: '/employer/responses',    label: 'Отклики',      icon: Inbox },
+  { to: '/employer',              label: 'Обзор',             icon: LayoutDashboard, end: true },
+  { to: '/employer/candidates',   label: 'Поиск кандидатов',  icon: Search },
+  { to: '/employer/company',      label: 'Компания',          icon: Building2 },
+  { to: '/employer/hiring-needs', label: 'Потребности',       icon: Briefcase },
+  { to: '/employer/vacancies',    label: 'Вакансии',          icon: FileText },
+  { to: '/employer/invitations',  label: 'Приглашения',       icon: Mail },
+  { to: '/employer/responses',    label: 'Отклики',           icon: Inbox },
 ]
 
 export function EmployerLayout() {

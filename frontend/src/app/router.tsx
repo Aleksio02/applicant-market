@@ -30,6 +30,8 @@ import VacanciesListPage from '@/pages/employer/VacanciesListPage'
 import VacancyFormPage from '@/pages/employer/VacancyFormPage'
 import OutgoingInvitationsPage from '@/pages/employer/OutgoingInvitationsPage'
 import IncomingApplicationsPage from '@/pages/employer/IncomingApplicationsPage'
+import CandidateSearchPage from '@/pages/employer/CandidateSearchPage'
+import CandidateCardPage from '@/pages/employer/CandidateCardPage'
 
 import { ApplicantLayout } from '@/shared/layout/ApplicantLayout'
 import { EmployerLayout } from '@/shared/layout/EmployerLayout'
@@ -74,16 +76,18 @@ export const router = createBrowserRouter([
       {
         element: <EmployerLayout />,
         children: [
-          { path: '/employer',                       element: <EmployerDashboard /> },
-          { path: '/employer/company',               element: <CompanyPage /> },
-          { path: '/employer/hiring-needs',          element: <HiringNeedsListPage /> },
-          { path: '/employer/hiring-needs/new',      element: <HiringNeedFormPage /> },
-          { path: '/employer/hiring-needs/:id',      element: <HiringNeedFormPage /> },
-          { path: '/employer/vacancies',             element: <VacanciesListPage /> },
-          { path: '/employer/vacancies/new',         element: <VacancyFormPage /> },
-          { path: '/employer/vacancies/:id',         element: <VacancyFormPage /> },
-          { path: '/employer/invitations',           element: <OutgoingInvitationsPage /> },
-          { path: '/employer/responses',             element: <IncomingApplicationsPage /> },
+          { path: '/employer',                         element: <EmployerDashboard /> },
+          { path: '/employer/candidates',              element: <CandidateSearchPage /> },
+          { path: '/employer/candidates/:applicantId', element: <CandidateCardPage /> },
+          { path: '/employer/company',                 element: <CompanyPage /> },
+          { path: '/employer/hiring-needs',            element: <HiringNeedsListPage /> },
+          { path: '/employer/hiring-needs/new',        element: <HiringNeedFormPage /> },
+          { path: '/employer/hiring-needs/:id',        element: <HiringNeedFormPage /> },
+          { path: '/employer/vacancies',               element: <VacanciesListPage /> },
+          { path: '/employer/vacancies/new',           element: <VacancyFormPage /> },
+          { path: '/employer/vacancies/:id',           element: <VacancyFormPage /> },
+          { path: '/employer/invitations',             element: <OutgoingInvitationsPage /> },
+          { path: '/employer/responses',               element: <IncomingApplicationsPage /> },
         ],
       },
     ],
