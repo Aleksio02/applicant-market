@@ -3,6 +3,7 @@ import {
   Award,
   BookOpen,
   Briefcase,
+  FileCheck2,
   GraduationCap,
   LayoutDashboard,
   Lock,
@@ -15,15 +16,16 @@ import { useAuth } from '@/features/auth/useAuth'
 import { cn } from '@/shared/lib/cn'
 
 const NAV = [
-  { to: '/applicant',            label: 'Обзор',        icon: LayoutDashboard, end: true },
-  { to: '/applicant/profile',    label: 'Профиль',      icon: User },
-  { to: '/applicant/skills',     label: 'Навыки',       icon: Sparkles },
-  { to: '/applicant/experience', label: 'Опыт',         icon: Briefcase },
-  { to: '/applicant/education',  label: 'Образование',  icon: GraduationCap },
-  { to: '/applicant/category',   label: 'Категория',    icon: Award },
-  { to: '/applicant/vacancies',  label: 'Вакансии',     icon: Search },
-  { to: '/applicant/fsp',        label: 'ФСП',          icon: BookOpen },
-  { to: '/applicant/privacy',    label: 'Приватность',  icon: Lock },
+  { to: '/applicant',            label: 'Обзор',         icon: LayoutDashboard, end: true },
+  { to: '/applicant/profile',    label: 'Профиль',       icon: User },
+  { to: '/applicant/skills',     label: 'Навыки',        icon: Sparkles },
+  { to: '/applicant/assessment', label: 'Тест на грейд', icon: FileCheck2 },
+  { to: '/applicant/experience', label: 'Опыт',          icon: Briefcase },
+  { to: '/applicant/education',  label: 'Образование',   icon: GraduationCap },
+  { to: '/applicant/category',   label: 'Категория',     icon: Award },
+  { to: '/applicant/vacancies',  label: 'Вакансии',      icon: Search },
+  { to: '/applicant/fsp',        label: 'ФСП',           icon: BookOpen },
+  { to: '/applicant/privacy',    label: 'Приватность',   icon: Lock },
 ]
 
 export function ApplicantLayout() {
