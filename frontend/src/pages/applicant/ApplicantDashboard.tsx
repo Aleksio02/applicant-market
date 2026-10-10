@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Award, Sparkles, User, Lock, ArrowRight } from 'lucide-react'
+import { Award, FileCheck2, Lock, Sparkles, User, ArrowRight } from 'lucide-react'
 import { applicantApi } from '@/api/applicant'
-import { ApiError } from '@/api/client'
 import { Card } from '@/shared/ui/Card'
 import { Button } from '@/shared/ui/Button'
 import { Badge } from '@/shared/ui/Badge'
 import { ProgressBar } from '@/shared/ui/ProgressBar'
 import { Spinner } from '@/shared/ui/Spinner'
-import { findGrade, findSpecialization, SPECIALIZATIONS, GRADES } from '@/shared/constants/catalog'
+import { useGrades, useSkills, findGrade, findSkill } from '@/shared/hooks/useCatalog'
+import { useSpecializations, findSpecialization } from '@/shared/hooks/useCatalog'
 
 const MISSING_LABELS: Record<string, string> = {
   fullName: 'Имя и фамилия',
@@ -45,6 +45,10 @@ export default function ApplicantDashboard() {
     enabled: !!profile,
   })
 
+  const { data: catalogSkills = [] } = useSkills()
+  const { data: catalogGrades = [] } = useGrades()
+  const { data: catalogSpecs = [] } = useSpecializations()
+
   if (loadingProfile || loadingCompleteness) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -54,9 +58,15 @@ export default function ApplicantDashboard() {
   }
 
   const primary = skills.find((s) => s.primary)
-  const grade = primary?.verifiedGradeId ? findGrade(primary.verifiedGradeId) : null
-  const spec = primary?.skillCategory
-    ? SPECIALIZATIONS.find((s) => s.code === primary.skillCategory) ?? null
+  const grade = primary?.verifiedGradeId
+    ? findGrade(catalogGrades, primary.verifiedGradeId)
+    : null
+  const skillItem = primary ? findSkill(catalogSkills, primary.skillId) : null
+  const spec = skillItem
+    ? findSpecialization(
+        catalogSpecs.filter((s) => s.code === skillItem.category),
+        catalogSpecs.find((s) => s.code === skillItem.category)?.id
+      )
     : null
 
   const displayName =
@@ -118,10 +128,11 @@ export default function ApplicantDashboard() {
               <div className="text-lg font-semibold">{spec.name}</div>
               <div className="flex gap-1.5">
                 <Badge variant="pink">{grade.name}</Badge>
-                <Badge variant="lilac">{primary.skillName ?? primary.skillCode}</Badge>
+                <Badge variant="lilac">{skillItem?.name}</Badge>
               </div>
               <p className="text-sm text-white/60">
-                Навык подтверждён {primary.verifiedAt
+                Навык подтверждён{' '}
+                {primary.verifiedAt
                   ? new Date(primary.verifiedAt).toLocaleDateString('ru-RU')
                   : '—'}
               </p>
@@ -132,18 +143,27 @@ export default function ApplicantDashboard() {
                 Категория не присвоена
               </div>
               <p className="text-sm text-white/60">
-                Добавьте навыки и сделайте один из них основным, чтобы получить категорию.
+                Пройдите тест на грейд, чтобы получить категорию.
               </p>
             </>
           )}
 
-          <div className="mt-auto pt-2">
-            <Link to="/applicant/skills">
-              <Button variant={primary && grade ? 'secondary' : 'primary'}>
-                {primary && grade ? 'Мои навыки' : 'Добавить навыки'}
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
+          <div className="mt-auto flex flex-wrap gap-2 pt-2">
+            {!grade ? (
+              <Link to="/applicant/assessment">
+                <Button>
+                  <FileCheck2 className="h-4 w-4" />
+                  Пройти тест
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/applicant/skills">
+                <Button variant="secondary">
+                  Мои навыки
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            )}
           </div>
         </Card>
 
@@ -180,10 +200,11 @@ export default function ApplicantDashboard() {
       </div>
 
       {/* Quick actions */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <QuickLink to="/applicant/profile" icon={<User className="h-4 w-4" />} label="Профиль" />
-        <QuickLink to="/applicant/skills" icon={<Sparkles className="h-4 w-4" />} label="Навыки" />
-        <QuickLink to="/applicant/category" icon={<Award className="h-4 w-4" />} label="Категория" />
+      <div className="grid gap-4 sm:grid-cols-4">
+        <QuickLink to="/applicant/profile"    icon={<User className="h-4 w-4" />} label="Профиль" />
+        <QuickLink to="/applicant/skills"     icon={<Sparkles className="h-4 w-4" />} label="Навыки" />
+        <QuickLink to="/applicant/assessment" icon={<FileCheck2 className="h-4 w-4" />} label="Тест на грейд" />
+        <QuickLink to="/applicant/category"   icon={<Award className="h-4 w-4" />} label="Категория" />
       </div>
     </div>
   )

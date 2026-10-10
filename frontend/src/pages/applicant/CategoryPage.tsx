@@ -1,12 +1,18 @@
+import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Award, Clock } from 'lucide-react'
+import { Award, Clock, FileCheck2 } from 'lucide-react'
 import { applicantApi } from '@/api/applicant'
 import { Card } from '@/shared/ui/Card'
 import { Badge } from '@/shared/ui/Badge'
+import { Button } from '@/shared/ui/Button'
 import { Spinner } from '@/shared/ui/Spinner'
 import { EmptyState } from '@/shared/ui/EmptyState'
-import { findGrade, SPECIALIZATIONS } from '@/shared/constants/catalog'
-import { SKILLS } from '@/shared/constants/skills'
+import {
+  useGrades,
+  useSkills,
+  findGrade,
+  findSkill,
+} from '@/shared/hooks/useCatalog'
 
 export default function CategoryPage() {
   const { data: skills = [], isLoading: loadingSkills } = useQuery({
@@ -19,6 +25,9 @@ export default function CategoryPage() {
     queryFn: applicantApi.listGradeHistory,
   })
 
+  const { data: catalogGrades = [] } = useGrades()
+  const { data: catalogSkills = [] } = useSkills()
+
   if (loadingSkills || loadingHistory) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -28,9 +37,10 @@ export default function CategoryPage() {
   }
 
   const primary = skills.find((s) => s.primary)
-  const grade = primary?.verifiedGradeId ? findGrade(primary.verifiedGradeId) : null
-  const skillItem = primary ? SKILLS.find((s) => s.id === primary.skillId) : null
-  const spec = skillItem ? SPECIALIZATIONS.find((s) => s.code === skillItem.category) : null
+  const grade = primary?.verifiedGradeId
+    ? findGrade(catalogGrades, primary.verifiedGradeId)
+    : null
+  const skillItem = primary ? findSkill(catalogSkills, primary.skillId) : null
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -43,7 +53,7 @@ export default function CategoryPage() {
 
       {/* Current category */}
       <Card className="p-6">
-        {primary && grade && spec ? (
+        {primary && grade && skillItem ? (
           <>
             <div className="flex items-center gap-2 text-fsp-pink">
               <Award className="h-5 w-5" />
@@ -51,14 +61,15 @@ export default function CategoryPage() {
                 Текущая категория
               </span>
             </div>
-            <div className="mt-3 text-2xl font-bold">{spec.name}</div>
+            <div className="mt-3 text-2xl font-bold">{skillItem.category}</div>
             <div className="mt-2 flex flex-wrap gap-2">
               <Badge variant="pink">{grade.name}</Badge>
-              <Badge variant="lilac">{skillItem?.name}</Badge>
+              <Badge variant="lilac">{skillItem.name}</Badge>
             </div>
             {primary.verifiedAt && (
               <p className="mt-3 text-sm text-white/60">
-                Грейд подтверждён {new Date(primary.verifiedAt).toLocaleDateString('ru-RU')}
+                Грейд подтверждён{' '}
+                {new Date(primary.verifiedAt).toLocaleDateString('ru-RU')}
               </p>
             )}
           </>
@@ -66,9 +77,18 @@ export default function CategoryPage() {
           <EmptyState
             icon={<Award className="h-8 w-8" />}
             title="Категория не присвоена"
-            description="Добавьте навыки, сделайте один основным и подтвердите грейд, чтобы получить категорию."
+            description="Пройдите тест на грейд, чтобы подтвердить уровень и получить категорию."
           />
         )}
+
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <Link to="/applicant/assessment">
+            <Button>
+              <FileCheck2 className="h-4 w-4" />
+              {primary && grade ? 'Пройти тест заново' : 'Пройти тест на грейд'}
+            </Button>
+          </Link>
+        </div>
       </Card>
 
       {/* Grade history */}
@@ -86,13 +106,21 @@ export default function CategoryPage() {
         ) : (
           <div className="space-y-2">
             {history.map((h) => {
-              const from = h.fromGradeId ? findGrade(h.fromGradeId) : null
-              const to = h.toGradeId ? findGrade(h.toGradeId) : null
+              const from = h.fromGradeId
+                ? findGrade(catalogGrades, h.fromGradeId)
+                : null
+              const to = findGrade(catalogGrades, h.toGradeId)
               return (
-                <Card key={h.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
+                <Card
+                  key={h.id}
+                  className="flex flex-wrap items-center justify-between gap-3 p-4"
+                >
                   <div className="flex items-center gap-3">
                     <div className="text-sm text-white/60">
-                      {from ? from.name : '—'} → <span className="text-white font-semibold">{to?.name ?? '—'}</span>
+                      {from ? from.name : '—'} →{' '}
+                      <span className="text-white font-semibold">
+                        {to?.name ?? '—'}
+                      </span>
                     </div>
                     <Badge variant={h.reason === 'ASSESSMENT' ? 'pink' : 'muted'}>
                       {h.reason}

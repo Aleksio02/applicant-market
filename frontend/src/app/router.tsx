@@ -14,6 +14,9 @@ import FspPage from '@/pages/applicant/FspPage'
 import CategoryPage from '@/pages/applicant/CategoryPage'
 import VacanciesPage from '@/pages/applicant/VacanciesPage'
 import VacancyDetailPage from '@/pages/applicant/VacancyDetailPage'
+import AssessmentPage from '@/pages/applicant/AssessmentPage'
+import AssessmentSessionPage from '@/pages/applicant/AssessmentSessionPage'
+import AssessmentResultPage from '@/pages/applicant/AssessmentResultPage'
 
 // Employer
 import EmployerDashboard from '@/pages/employer/EmployerDashboard'
@@ -39,16 +42,19 @@ export const router = createBrowserRouter([
       {
         element: <ApplicantLayout />,
         children: [
-          { path: '/applicant',               element: <ApplicantDashboard /> },
-          { path: '/applicant/profile',       element: <ProfilePage /> },
-          { path: '/applicant/skills',        element: <SkillsPage /> },
-          { path: '/applicant/experience',    element: <ExperiencePage /> },
-          { path: '/applicant/education',     element: <EducationPage /> },
-          { path: '/applicant/privacy',       element: <PrivacyPage /> },
-          { path: '/applicant/fsp',           element: <FspPage /> },
-          { path: '/applicant/category',      element: <CategoryPage /> },
-          { path: '/applicant/vacancies',     element: <VacanciesPage /> },
-          { path: '/applicant/vacancies/:id', element: <VacancyDetailPage /> },
+          { path: '/applicant',                          element: <ApplicantDashboard /> },
+          { path: '/applicant/profile',                  element: <ProfilePage /> },
+          { path: '/applicant/skills',                   element: <SkillsPage /> },
+          { path: '/applicant/assessment',               element: <AssessmentPage /> },
+          { path: '/applicant/assessment/session/:id',   element: <AssessmentSessionPage /> },
+          { path: '/applicant/assessment/result/:id',    element: <AssessmentResultPage /> },
+          { path: '/applicant/experience',               element: <ExperiencePage /> },
+          { path: '/applicant/education',                element: <EducationPage /> },
+          { path: '/applicant/privacy',                  element: <PrivacyPage /> },
+          { path: '/applicant/fsp',                      element: <FspPage /> },
+          { path: '/applicant/category',                 element: <CategoryPage /> },
+          { path: '/applicant/vacancies',                element: <VacanciesPage /> },
+          { path: '/applicant/vacancies/:id',            element: <VacancyDetailPage /> },
         ],
       },
     ],
