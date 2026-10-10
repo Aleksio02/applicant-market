@@ -23,6 +23,7 @@ import {
 } from '@/shared/constants/catalog'
 import { SKILLS } from '@/shared/constants/skills'
 import type { VacancyRequirement, WorkFormat } from '@/shared/types/vacancy'
+import { AssignmentBlock } from '@/features/assignment/AssignmentBlock'   // ← ДОБАВЛЕНО
 
 const schema = z
   .object({
@@ -302,7 +303,12 @@ export default function VacancyFormPage() {
         </form>
       </Card>
 
-      {isEdit && id && <RequirementsSection vacancyId={id} />}
+      {isEdit && id && (
+        <>
+          <RequirementsSection vacancyId={id} />
+          <AssignmentBlock vacancyId={id} />
+        </>
+      )}
     </div>
   )
 }

@@ -6,6 +6,7 @@ import { Button } from '@/shared/ui/Button'
 import { Badge } from '@/shared/ui/Badge'
 import { Card } from '@/shared/ui/Card'
 import { Spinner } from '@/shared/ui/Spinner'
+import { ApplicantAssignmentBlock } from '@/features/assignment/ApplicantAssignmentBlock'
 import {
   WORK_FORMAT_LABELS,
   findGrade,
@@ -75,6 +76,9 @@ export default function VacancyDetailPage() {
           </Button>
         </div>
       </Card>
+
+      {/* Тестовое задание от работодателя */}
+      <ApplicantAssignmentBlock vacancyId={vacancy.id} />
     </div>
   )
 }

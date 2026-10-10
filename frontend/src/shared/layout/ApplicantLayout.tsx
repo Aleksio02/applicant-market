@@ -3,6 +3,7 @@ import {
   Award,
   BookOpen,
   Briefcase,
+  ClipboardList,
   FileCheck2,
   GraduationCap,
   LayoutDashboard,
@@ -16,16 +17,17 @@ import { useAuth } from '@/features/auth/useAuth'
 import { cn } from '@/shared/lib/cn'
 
 const NAV = [
-  { to: '/applicant',            label: 'Обзор',         icon: LayoutDashboard, end: true },
-  { to: '/applicant/profile',    label: 'Профиль',       icon: User },
-  { to: '/applicant/skills',     label: 'Навыки',        icon: Sparkles },
-  { to: '/applicant/assessment', label: 'Тест на грейд', icon: FileCheck2 },
-  { to: '/applicant/experience', label: 'Опыт',          icon: Briefcase },
-  { to: '/applicant/education',  label: 'Образование',   icon: GraduationCap },
-  { to: '/applicant/category',   label: 'Категория',     icon: Award },
-  { to: '/applicant/vacancies',  label: 'Вакансии',      icon: Search },
-  { to: '/applicant/fsp',        label: 'ФСП',           icon: BookOpen },
-  { to: '/applicant/privacy',    label: 'Приватность',   icon: Lock },
+  { to: '/applicant',             label: 'Обзор',         icon: LayoutDashboard, end: true },
+  { to: '/applicant/profile',     label: 'Профиль',       icon: User },
+  { to: '/applicant/skills',      label: 'Навыки',        icon: Sparkles },
+  { to: '/applicant/assessment',  label: 'Тест на грейд', icon: FileCheck2 },
+  { to: '/applicant/experience',  label: 'Опыт',          icon: Briefcase },
+  { to: '/applicant/education',   label: 'Образование',   icon: GraduationCap },
+  { to: '/applicant/category',    label: 'Категория',     icon: Award },
+  { to: '/applicant/vacancies',   label: 'Вакансии',      icon: Search },
+  { to: '/applicant/assignments', label: 'Задания',       icon: ClipboardList },
+  { to: '/applicant/fsp',         label: 'ФСП',           icon: BookOpen },
+  { to: '/applicant/privacy',     label: 'Приватность',   icon: Lock },
 ]
 
 export function ApplicantLayout() {
@@ -70,7 +72,9 @@ export function ApplicantLayout() {
 
         <div className="border-t border-white/10 pt-4">
           <div className="mb-3 px-2 text-xs">
-            <div className="truncate font-semibold text-white">{user?.username}</div>
+            <div className="truncate font-semibold text-white">
+              {user?.username}
+            </div>
             <div className="truncate text-white/40">{user?.email}</div>
           </div>
           <button
