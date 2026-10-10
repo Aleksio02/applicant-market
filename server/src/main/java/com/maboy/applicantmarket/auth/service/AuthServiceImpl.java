@@ -23,8 +23,11 @@ import com.maboy.applicantmarket.commons.model.Role;
 import com.maboy.applicantmarket.commons.model.SessionPayload;
 import com.maboy.applicantmarket.commons.model.User;
 import com.maboy.applicantmarket.commons.model.UserStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +36,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Primary
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -41,9 +45,16 @@ public class AuthServiceImpl implements AuthService {
     private final ConsentDao consentDao;
     private final SessionUtils sessionUtils;
     private final EmailCodeService emailCodeService;
+    private final JavaMailSender mailSender;
 
     @Value("${app.auth.email-confirmation.enabled}")
     private boolean emailConfirmationEnabled;
+
+    @Value("${app.mail.enabled}")
+    private boolean mailEnabled;
+
+    @Value("${app.mail.from}")
+    private String mailFrom;
 
     @Value("${app.consents.data-processing-version}")
     private int dataProcessingVersion;
@@ -57,11 +68,13 @@ public class AuthServiceImpl implements AuthService {
     public AuthServiceImpl(UserDao userDao,
                            ConsentDao consentDao,
                            SessionUtils sessionUtils,
-                           EmailCodeService emailCodeService) {
+                           EmailCodeService emailCodeService,
+                           JavaMailSender mailSender) {
         this.userDao = userDao;
         this.consentDao = consentDao;
         this.sessionUtils = sessionUtils;
         this.emailCodeService = emailCodeService;
+        this.mailSender = mailSender;
     }
 
     @Override
@@ -184,6 +197,15 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
+    @Override
+    public void requireApplicant(UUID userId) {
+        UserDto user = userDao.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        if (user.getRole() != Role.APPLICANT) {
+            throw new AccessForbiddenException("Only applicant can perform this action");
+        }
+    }
+
     private void validateConsents(List<ConsentType> types) {
         if (types == null || types.isEmpty() || !types.contains(ConsentType.DATA_PROCESSING)) {
             throw new IncorrectRequestDataException("Data processing consent is required");
@@ -211,15 +233,20 @@ public class AuthServiceImpl implements AuthService {
 
     @Async
     protected void sendCodeToMail(String receiver, String code) {
-        System.out.println("Confirmation code for " + receiver + ": " + code);
-    }
-
-    @Override
-    public void requireApplicant(UUID userId) {
-        UserDto user = userDao.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
-        if (user.getRole() != Role.APPLICANT) {
-            throw new AccessForbiddenException("Only applicant can perform this action");
+        if (mailEnabled) {
+            try {
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setFrom(mailFrom);
+                message.setTo(receiver);
+                message.setSubject("Подтверждение регистрации");
+                message.setText("Ваш код подтверждения: " + code);
+                mailSender.send(message);
+                log.info("Confirmation email sent to {}", receiver);
+            } catch (Exception e) {
+                log.error("Failed to send confirmation email to {}", receiver, e);
+            }
+        } else {
+            log.info("Confirmation code for {}: {}", receiver, code);
         }
     }
 }
