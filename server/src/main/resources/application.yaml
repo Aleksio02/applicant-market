@@ -43,7 +43,7 @@ app:
     email-confirmation:
       enabled: true
   mail:
-    enabled: true
+    enabled: false
     from: applicant-market@yandex.ru
   consents:
     data-processing-version: 1
