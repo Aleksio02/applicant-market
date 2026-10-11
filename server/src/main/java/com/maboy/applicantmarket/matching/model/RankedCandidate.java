@@ -13,6 +13,7 @@ import java.util.UUID;
 public class RankedCandidate {
     // core
     private UUID applicantId;
+    private UUID candidateId;
     private double rankScore;
     private double matchLevel;
     private RankFactors factors;

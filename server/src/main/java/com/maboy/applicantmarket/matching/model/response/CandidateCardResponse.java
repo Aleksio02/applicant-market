@@ -13,6 +13,7 @@ import java.util.UUID;
 public class CandidateCardResponse {
 
     private UUID applicantId;
+    private UUID candidateId; // userId
     private String displayName;
     private String city;
     private Short experienceYears;

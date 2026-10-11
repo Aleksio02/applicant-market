@@ -237,6 +237,13 @@ public class ApplicantModuleApiImpl implements ApplicantModuleApi {
         return result;
     }
 
+    @Override
+    public UUID getUserIdByApplicantId(UUID applicantId) {
+        return profileDao.findById(applicantId)
+            .map(ApplicantProfileDto::getUserId)
+            .orElseThrow(() -> new ApplicantNotFoundException("Applicant not found: " + applicantId));
+    }
+
     private String buildDisplayName(ApplicantProfileDto p) {
         StringBuilder sb = new StringBuilder();
         if (p.getLastName() != null) sb.append(p.getLastName());

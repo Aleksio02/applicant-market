@@ -17,6 +17,7 @@ public class CandidateSearchConverter {
         if (rc == null) return null;
         return CandidateCardResponse.builder()
                 .applicantId(rc.getApplicantId())
+                .candidateId(rc.getCandidateId())
                 .displayName(rc.getDisplayName())
                 .city(rc.getCity())
                 .experienceYears(rc.getExperienceYears())

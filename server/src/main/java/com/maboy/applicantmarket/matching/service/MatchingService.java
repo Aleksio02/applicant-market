@@ -140,6 +140,7 @@ public class MatchingService {
 
         RankedCandidate rc = rankingService.rank(applicantId, request, cat);
         rc.setExplanations(explanationService.explain(rc.getFactors()));
+        rc.setCandidateId(applicantModuleApi.getUserIdByApplicantId(applicantId));
         return converter.toCard(rc);
     }
 

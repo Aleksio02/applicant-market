@@ -25,4 +25,5 @@ public interface ApplicantModuleApi {
     List<UUID> getApplicantIdsByPrimarySkillCategoryAndGrade(UUID specializationId, UUID gradeId);
     long countApplicantsInCategory(UUID specializationId, UUID gradeId);
     Map<UUID, Set<UUID>> getAllSkillIdsForAll(Collection<UUID> applicantIds);
+    UUID getUserIdByApplicantId(UUID applicantId);
 }
