@@ -11,8 +11,8 @@ import { EmptyState } from '@/shared/ui/EmptyState'
 import { Modal } from '@/shared/ui/Modal'
 import { Input } from '@/shared/ui/Input'
 import { Select } from '@/shared/ui/Select'
-import { findGrade } from '@/shared/constants/catalog'
-import { SKILLS } from '@/shared/constants/skills'
+import { useGrades, useSkills, findGrade } from '@/shared/hooks/useCatalog'
+import type { SkillItem, GradeItem } from '@/shared/types/catalog'
 import type { AddSkillRequest, ApplicantSkill } from '@/shared/types/applicant'
 
 export default function SkillsPage() {
@@ -24,6 +24,9 @@ export default function SkillsPage() {
     queryKey: ['applicant', 'skills'],
     queryFn: applicantApi.listSkills,
   })
+
+  const { data: catalogSkills = [] } = useSkills()
+  const { data: catalogGrades = [] } = useGrades()
 
   const removeMutation = useMutation({
     mutationFn: (skillId: string) => applicantApi.removeSkill(skillId),
@@ -46,7 +49,7 @@ export default function SkillsPage() {
   })
 
   const usedSkillIds = new Set(skills.map((s) => s.skillId))
-  const availableSkills = SKILLS.filter((s) => !usedSkillIds.has(s.id))
+  const availableSkills = catalogSkills.filter((s) => !usedSkillIds.has(s.id))
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -91,6 +94,7 @@ export default function SkillsPage() {
             <SkillRow
               key={skill.id}
               skill={skill}
+              grades={catalogGrades}
               onRemove={() => removeMutation.mutate(skill.skillId)}
               onMakePrimary={() => primaryMutation.mutate(skill.skillId)}
               isRemoving={removeMutation.isPending}
@@ -111,18 +115,22 @@ export default function SkillsPage() {
 
 function SkillRow({
   skill,
+  grades,
   onRemove,
   onMakePrimary,
   isRemoving,
   isPromoting,
 }: {
   skill: ApplicantSkill
+  grades: GradeItem[]
   onRemove: () => void
   onMakePrimary: () => void
   isRemoving: boolean
   isPromoting: boolean
 }) {
-  const grade = skill.verifiedGradeId ? findGrade(skill.verifiedGradeId) : null
+  const grade = skill.verifiedGradeId
+    ? findGrade(grades, skill.verifiedGradeId)
+    : null
 
   return (
     <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
@@ -185,7 +193,7 @@ function AddSkillModal({
 }: {
   open: boolean
   onClose: () => void
-  availableSkills: typeof SKILLS
+  availableSkills: SkillItem[]
 }) {
   const queryClient = useQueryClient()
   const [skillId, setSkillId] = useState('')
@@ -238,7 +246,10 @@ function AddSkillModal({
             label="Самооценка (1–5)"
             value={level}
             onChange={(e) => setLevel(e.target.value)}
-            options={[1, 2, 3, 4, 5].map((n) => ({ value: String(n), label: String(n) }))}
+            options={[1, 2, 3, 4, 5].map((n) => ({
+              value: String(n),
+              label: String(n),
+            }))}
           />
           <Input
             label="Опыт (лет)"
@@ -258,8 +269,12 @@ function AddSkillModal({
         )}
 
         <div className="flex justify-end gap-3 pt-2">
-          <Button variant="ghost" onClick={onClose}>Отмена</Button>
-          <Button onClick={submit} loading={mutation.isPending}>Добавить</Button>
+          <Button variant="ghost" onClick={onClose}>
+            Отмена
+          </Button>
+          <Button onClick={submit} loading={mutation.isPending}>
+            Добавить
+          </Button>
         </div>
       </div>
     </Modal>

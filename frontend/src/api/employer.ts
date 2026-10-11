@@ -67,4 +67,9 @@ export const employerApi = {
     api
       .patch<HiringNeed>(`/employer/hiring-need/${id}/deactivate`)
       .then((r) => r.data),
+
+  activateHiringNeed: (id: string) =>
+    api
+      .patch<HiringNeed>(`/employer/hiring-need/${id}/activate`)
+      .then((r) => r.data),
 }

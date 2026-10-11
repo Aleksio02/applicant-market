@@ -12,14 +12,19 @@ import { Spinner } from '@/shared/ui/Spinner'
 import { Modal } from '@/shared/ui/Modal'
 import { Textarea } from '@/shared/ui/Textarea'
 import { ApplicantAssignmentBlock } from '@/features/assignment/ApplicantAssignmentBlock'
+import { WORK_FORMAT_LABELS } from '@/shared/constants/catalog'
 import {
-  WORK_FORMAT_LABELS,
+  useGrades,
+  useSpecializations,
   findGrade,
   findSpecialization,
-} from '@/shared/constants/catalog'
+} from '@/shared/hooks/useCatalog'
 
 export default function VacancyDetailPage() {
   const { id } = useParams<{ id: string }>()
+
+  const { data: specs = [] } = useSpecializations()
+  const { data: grades = [] } = useGrades()
 
   const { data: vacancy, isLoading } = useQuery({
     queryKey: ['applicant', 'vacancy', id],
@@ -39,8 +44,9 @@ export default function VacancyDetailPage() {
     return <div className="text-white/60">Вакансия не найдена</div>
   }
 
-  const spec = vacancy.specialization ?? findSpecialization(vacancy.specializationId)
-  const grade = vacancy.grade ?? findGrade(vacancy.gradeId)
+  const spec =
+    vacancy.specialization ?? findSpecialization(specs, vacancy.specializationId)
+  const grade = vacancy.grade ?? findGrade(grades, vacancy.gradeId)
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -86,7 +92,6 @@ function ApplySection({ vacancyId }: { vacancyId: string }) {
   const [message, setMessage] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  // Проверяем, есть ли уже активный отклик на эту вакансию
   const { data: myApplications = [], isLoading } = useQuery({
     queryKey: ['applicant', 'applications', 'mine'],
     queryFn: interactionApi.listMyApplications,
@@ -110,25 +115,19 @@ function ApplySection({ vacancyId }: { vacancyId: string }) {
       setError(null)
       setOpen(false)
       setMessage('')
-      queryClient.invalidateQueries({
-        queryKey: ['applicant', 'applications'],
-      })
+      queryClient.invalidateQueries({ queryKey: ['applicant', 'applications'] })
     },
     onError: (err) => {
-      // 400 = отклик уже есть — обновляем список, кнопка сменится сама
       if (err instanceof ApiError && err.status === 400) {
         setOpen(false)
         setError(null)
-        queryClient.invalidateQueries({
-          queryKey: ['applicant', 'applications'],
-        })
+        queryClient.invalidateQueries({ queryKey: ['applicant', 'applications'] })
         return
       }
       setError(err instanceof ApiError ? err.message : 'Не удалось откликнуться')
     },
   })
 
-  // Пока грузим список откликов — показываем плейсхолдер
   if (isLoading) {
     return (
       <div className="mt-6 flex justify-end">
@@ -172,8 +171,7 @@ function ApplySection({ vacancyId }: { vacancyId: string }) {
           />
 
           <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-white/60">
-            При отклике работодатель сразу увидит ваши контакты и сможет
-            связаться.
+            При отклике работодатель сразу увидит ваши контакты и сможет связаться.
           </div>
 
           {error && (
@@ -186,10 +184,7 @@ function ApplySection({ vacancyId }: { vacancyId: string }) {
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Отмена
             </Button>
-            <Button
-              onClick={() => mutation.mutate()}
-              loading={mutation.isPending}
-            >
+            <Button onClick={() => mutation.mutate()} loading={mutation.isPending}>
               Отправить отклик
             </Button>
           </div>

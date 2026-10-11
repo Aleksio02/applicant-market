@@ -10,7 +10,14 @@ import { Badge } from '@/shared/ui/Badge'
 import { Spinner } from '@/shared/ui/Spinner'
 import { EmptyState } from '@/shared/ui/EmptyState'
 import { cn } from '@/shared/lib/cn'
-import { findGrade, findSpecialization, WORK_FORMAT_LABELS } from '@/shared/constants/catalog'
+import { WORK_FORMAT_LABELS } from '@/shared/constants/catalog'
+import {
+  useGrades,
+  useSpecializations,
+  findGrade,
+  findSpecialization,
+} from '@/shared/hooks/useCatalog'
+import type { GradeItem, SpecializationItem } from '@/shared/types/catalog'
 import type { Vacancy, VacancyStatus } from '@/shared/types/vacancy'
 
 type Filter = 'all' | VacancyStatus
@@ -27,6 +34,9 @@ export default function VacanciesListPage() {
   const queryClient = useQueryClient()
   const [filter, setFilter] = useState<Filter>('all')
   const [error, setError] = useState<string | null>(null)
+
+  const { data: specs = [] } = useSpecializations()
+  const { data: grades = [] } = useGrades()
 
   const { data: vacancies = [], isLoading } = useQuery({
     queryKey: ['employer', 'vacancies', filter],
@@ -119,6 +129,8 @@ export default function VacanciesListPage() {
             <VacancyRow
               key={v.id}
               vacancy={v}
+              specs={specs}
+              grades={grades}
               onOpen={() => navigate(`/employer/vacancies/${v.id}`)}
               onPublish={() => publishMutation.mutate(v.id)}
               onClose={() => closeMutation.mutate(v.id)}
@@ -134,6 +146,8 @@ export default function VacanciesListPage() {
 
 function VacancyRow({
   vacancy,
+  specs,
+  grades,
   onOpen,
   onPublish,
   onClose,
@@ -141,14 +155,17 @@ function VacancyRow({
   isClosing,
 }: {
   vacancy: Vacancy
+  specs: SpecializationItem[]
+  grades: GradeItem[]
   onOpen: () => void
   onPublish: () => void
   onClose: () => void
   isPublishing: boolean
   isClosing: boolean
 }) {
-  const spec = vacancy.specialization ?? findSpecialization(vacancy.specializationId)
-  const grade = vacancy.grade ?? findGrade(vacancy.gradeId)
+  const spec =
+    vacancy.specialization ?? findSpecialization(specs, vacancy.specializationId)
+  const grade = vacancy.grade ?? findGrade(grades, vacancy.gradeId)
 
   return (
     <Card className="p-5 transition-colors hover:border-white/20">

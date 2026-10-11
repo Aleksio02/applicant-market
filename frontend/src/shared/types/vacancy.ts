@@ -1,5 +1,10 @@
 import type { UUID } from './api'
 import type { WorkFormat } from './employer'
+import type { SkillItem } from './catalog'
+
+// Реэкспорт, чтобы другие файлы могли писать:
+// import type { WorkFormat } from '@/shared/types/vacancy'
+export type { WorkFormat }
 
 export type VacancyStatus = 'DRAFT' | 'PUBLISHED' | 'CLOSED'
 
@@ -60,7 +65,7 @@ export interface VacancyRequirement {
   id: UUID
   vacancyId: UUID
   skillId: UUID
-  skill?: { id: UUID; code: string; name: string; category: string } | null
+  skill?: SkillItem | null
   level: number
   mandatory: boolean
   createdAt: string

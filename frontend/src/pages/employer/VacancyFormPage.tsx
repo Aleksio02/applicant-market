@@ -16,14 +16,16 @@ import { Card } from '@/shared/ui/Card'
 import { Badge } from '@/shared/ui/Badge'
 import { Spinner } from '@/shared/ui/Spinner'
 import { Modal } from '@/shared/ui/Modal'
+import { WORK_FORMAT_LABELS } from '@/shared/constants/catalog'
 import {
-  GRADES,
-  SPECIALIZATIONS,
-  WORK_FORMAT_LABELS,
-} from '@/shared/constants/catalog'
-import { SKILLS } from '@/shared/constants/skills'
+  useGrades,
+  useSkills,
+  useSpecializations,
+  findSkill,
+} from '@/shared/hooks/useCatalog'
+import type { SkillItem } from '@/shared/types/catalog'
 import type { VacancyRequirement, WorkFormat } from '@/shared/types/vacancy'
-import { AssignmentBlock } from '@/features/assignment/AssignmentBlock'   // ← ДОБАВЛЕНО
+import { AssignmentBlock } from '@/features/assignment/AssignmentBlock'
 
 const schema = z
   .object({
@@ -49,6 +51,9 @@ export default function VacancyFormPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [serverError, setServerError] = useState<string | null>(null)
+
+  const { data: specs = [] } = useSpecializations()
+  const { data: grades = [] } = useGrades()
 
   const { data: existing, isLoading } = useQuery({
     queryKey: ['employer', 'vacancy', id],
@@ -220,7 +225,7 @@ export default function VacancyFormPage() {
                   value={field.value}
                   onChange={field.onChange}
                   error={form.formState.errors.specializationId?.message}
-                  options={SPECIALIZATIONS.map((s) => ({ value: s.id, label: s.name }))}
+                  options={specs.map((s) => ({ value: s.id, label: s.name }))}
                 />
               )}
             />
@@ -234,7 +239,7 @@ export default function VacancyFormPage() {
                   value={field.value}
                   onChange={field.onChange}
                   error={form.formState.errors.gradeId?.message}
-                  options={GRADES.map((g) => ({
+                  options={grades.map((g) => ({
                     value: g.id,
                     label: `${g.name} (${g.level})`,
                   }))}
@@ -320,6 +325,8 @@ function RequirementsSection({ vacancyId }: { vacancyId: string }) {
   const [addOpen, setAddOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const { data: catalogSkills = [] } = useSkills()
+
   const { data: items = [], isLoading } = useQuery({
     queryKey: ['employer', 'vacancy', vacancyId, 'requirements'],
     queryFn: () => vacancyApi.listRequirements(vacancyId),
@@ -366,6 +373,7 @@ function RequirementsSection({ vacancyId }: { vacancyId: string }) {
             <RequirementRow
               key={r.id}
               requirement={r}
+              skills={catalogSkills}
               onRemove={() => removeMutation.mutate(r.id)}
               isRemoving={removeMutation.isPending}
             />
@@ -377,6 +385,7 @@ function RequirementsSection({ vacancyId }: { vacancyId: string }) {
         key={addOpen ? 'open' : 'closed'}
         open={addOpen}
         vacancyId={vacancyId}
+        skills={catalogSkills}
         onClose={() => setAddOpen(false)}
         usedSkillIds={items.map((r) => r.skillId)}
       />
@@ -386,14 +395,16 @@ function RequirementsSection({ vacancyId }: { vacancyId: string }) {
 
 function RequirementRow({
   requirement,
+  skills,
   onRemove,
   isRemoving,
 }: {
   requirement: VacancyRequirement
+  skills: SkillItem[]
   onRemove: () => void
   isRemoving: boolean
 }) {
-  const skill = requirement.skill ?? SKILLS.find((s) => s.id === requirement.skillId)
+  const skill = requirement.skill ?? findSkill(skills, requirement.skillId)
 
   return (
     <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
@@ -414,11 +425,13 @@ function RequirementRow({
 function AddRequirementModal({
   open,
   vacancyId,
+  skills,
   onClose,
   usedSkillIds,
 }: {
   open: boolean
   vacancyId: string
+  skills: SkillItem[]
   onClose: () => void
   usedSkillIds: string[]
 }) {
@@ -428,7 +441,7 @@ function AddRequirementModal({
   const [mandatory, setMandatory] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const available = SKILLS.filter((s) => !usedSkillIds.includes(s.id))
+  const available = skills.filter((s) => !usedSkillIds.includes(s.id))
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -477,7 +490,10 @@ function AddRequirementModal({
           label="Уровень (1–5)"
           value={level}
           onChange={(e) => setLevel(e.target.value)}
-          options={[1, 2, 3, 4, 5].map((n) => ({ value: String(n), label: String(n) }))}
+          options={[1, 2, 3, 4, 5].map((n) => ({
+            value: String(n),
+            label: String(n),
+          }))}
         />
 
         <Checkbox

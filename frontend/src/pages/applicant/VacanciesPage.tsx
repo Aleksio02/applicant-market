@@ -8,19 +8,22 @@ import { Card } from '@/shared/ui/Card'
 import { Select } from '@/shared/ui/Select'
 import { Spinner } from '@/shared/ui/Spinner'
 import { EmptyState } from '@/shared/ui/EmptyState'
+import { WORK_FORMAT_LABELS } from '@/shared/constants/catalog'
 import {
-  GRADES,
-  SPECIALIZATIONS,
-  WORK_FORMAT_LABELS,
+  useGrades,
+  useSpecializations,
   findGrade,
   findSpecialization,
-} from '@/shared/constants/catalog'
+} from '@/shared/hooks/useCatalog'
 import type { Vacancy } from '@/shared/types/vacancy'
 
 export default function VacanciesPage() {
   const [specId, setSpecId] = useState('')
   const [gradeId, setGradeId] = useState('')
   const [format, setFormat] = useState('')
+
+  const { data: specs = [] } = useSpecializations()
+  const { data: grades = [] } = useGrades()
 
   const { data: vacancies = [], isLoading } = useQuery({
     queryKey: ['applicant', 'vacancies', { specId, gradeId, format }],
@@ -46,13 +49,13 @@ export default function VacanciesPage() {
           placeholder="Специализация"
           value={specId}
           onChange={(e) => setSpecId(e.target.value)}
-          options={SPECIALIZATIONS.map((s) => ({ value: s.id, label: s.name }))}
+          options={specs.map((s) => ({ value: s.id, label: s.name }))}
         />
         <Select
           placeholder="Грейд"
           value={gradeId}
           onChange={(e) => setGradeId(e.target.value)}
-          options={GRADES.map((g) => ({ value: g.id, label: g.name }))}
+          options={grades.map((g) => ({ value: g.id, label: g.name }))}
         />
         <Select
           placeholder="Формат"
@@ -78,7 +81,7 @@ export default function VacanciesPage() {
       ) : (
         <div className="space-y-3">
           {vacancies.map((v) => (
-            <VacancyCard key={v.id} vacancy={v} />
+            <VacancyCard key={v.id} vacancy={v} specs={specs} grades={grades} />
           ))}
         </div>
       )}
@@ -86,9 +89,18 @@ export default function VacanciesPage() {
   )
 }
 
-function VacancyCard({ vacancy }: { vacancy: Vacancy }) {
-  const spec = vacancy.specialization ?? findSpecialization(vacancy.specializationId)
-  const grade = vacancy.grade ?? findGrade(vacancy.gradeId)
+function VacancyCard({
+  vacancy,
+  specs,
+  grades,
+}: {
+  vacancy: Vacancy
+  specs: ReturnType<typeof useSpecializations>['data'] & object[]
+  grades: ReturnType<typeof useGrades>['data'] & object[]
+}) {
+  const spec =
+    vacancy.specialization ?? findSpecialization(specs, vacancy.specializationId)
+  const grade = vacancy.grade ?? findGrade(grades, vacancy.gradeId)
 
   return (
     <Card className="p-5 transition-colors hover:border-white/20">
