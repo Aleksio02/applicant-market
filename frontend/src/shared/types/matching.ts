@@ -26,6 +26,7 @@ export interface MatchReason {
 
 export interface CandidateCard {
   applicantId: UUID
+  candidateId: UUID          // ← ДОБАВЛЕНО: users.id, для создания приглашения
   displayName?: string | null
   city?: string | null
   experienceYears?: number | null

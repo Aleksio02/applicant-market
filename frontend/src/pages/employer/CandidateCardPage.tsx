@@ -146,7 +146,7 @@ export default function CandidateCardPage() {
 
       <InviteCandidateModal
         open={inviteOpen}
-        candidateId={candidate.applicantId}
+        candidateId={candidate.candidateId}
         defaultTitle={
           candidate.categoryName && candidate.primarySkillName
             ? `${candidate.primaryGradeName ?? ''} ${candidate.primarySkillName}`.trim()
