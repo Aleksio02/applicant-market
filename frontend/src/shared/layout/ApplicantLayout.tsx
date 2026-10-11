@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/features/auth/useAuth'
 import { cn } from '@/shared/lib/cn'
+import { FspLogo } from '@/shared/ui/FspLogo'
 
 const NAV = [
   { to: '/applicant',             label: 'Обзор',         icon: LayoutDashboard, end: true },
@@ -46,11 +47,12 @@ export function ApplicantLayout() {
   return (
     <div className="flex min-h-screen bg-fsp-violet text-white">
       <aside className="flex w-64 shrink-0 flex-col border-r border-white/10 bg-black/20 p-4">
-        <div className="mb-8 flex items-center gap-2 px-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-fsp-pink font-black">
-            Ф
-          </div>
-          <span className="font-bold">Applicant Market</span>
+        {/* Шапка сайдбара — логотип ФСП */}
+        <div className="mb-8 flex flex-col items-center gap-2 px-2">
+          <FspLogo width={200} />
+          <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">
+            Applicant Market
+          </span>
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto">

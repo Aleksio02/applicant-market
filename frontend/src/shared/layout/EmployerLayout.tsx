@@ -1,25 +1,26 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import {
+  Briefcase,
   Building2,
   FileText,
   Inbox,
   LayoutDashboard,
-  Briefcase,
   LogOut,
   Mail,
   Search,
 } from 'lucide-react'
 import { useAuth } from '@/features/auth/useAuth'
 import { cn } from '@/shared/lib/cn'
+import { FspLogo } from '@/shared/ui/FspLogo'
 
 const NAV = [
-  { to: '/employer',              label: 'Обзор',             icon: LayoutDashboard, end: true },
-  { to: '/employer/candidates',   label: 'Поиск кандидатов',  icon: Search },
-  { to: '/employer/company',      label: 'Компания',          icon: Building2 },
-  { to: '/employer/hiring-needs', label: 'Потребности',       icon: Briefcase },
-  { to: '/employer/vacancies',    label: 'Вакансии',          icon: FileText },
-  { to: '/employer/invitations',  label: 'Приглашения',       icon: Mail },
-  { to: '/employer/responses',    label: 'Отклики',           icon: Inbox },
+  { to: '/employer',              label: 'Обзор',       icon: LayoutDashboard, end: true },
+  { to: '/employer/company',      label: 'Компания',    icon: Building2 },
+  { to: '/employer/hiring-needs', label: 'Потребности', icon: Briefcase },
+  { to: '/employer/vacancies',    label: 'Вакансии',    icon: FileText },
+  { to: '/employer/candidates',   label: 'Кандидаты',   icon: Search },
+  { to: '/employer/invitations',  label: 'Приглашения', icon: Mail },
+  { to: '/employer/responses',    label: 'Отклики',     icon: Inbox },
 ]
 
 export function EmployerLayout() {
@@ -34,14 +35,15 @@ export function EmployerLayout() {
   return (
     <div className="flex min-h-screen bg-fsp-violet text-white">
       <aside className="flex w-64 shrink-0 flex-col border-r border-white/10 bg-black/20 p-4">
-        <div className="mb-8 flex items-center gap-2 px-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-fsp-pink font-black">
-            Ф
-          </div>
-          <span className="font-bold">Applicant Market</span>
+        {/* Шапка сайдбара — логотип ФСП */}
+        <div className="mb-8 flex flex-col items-center gap-2 px-2">
+          <FspLogo width={200} />
+          <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">
+            Applicant Market
+          </span>
         </div>
 
-        <nav className="flex-1 space-y-1">
+        <nav className="flex-1 space-y-1 overflow-y-auto">
           {NAV.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
@@ -64,7 +66,9 @@ export function EmployerLayout() {
 
         <div className="border-t border-white/10 pt-4">
           <div className="mb-3 px-2 text-xs">
-            <div className="truncate font-semibold text-white">{user?.username}</div>
+            <div className="truncate font-semibold text-white">
+              {user?.username}
+            </div>
             <div className="truncate text-white/40">{user?.email}</div>
           </div>
           <button
