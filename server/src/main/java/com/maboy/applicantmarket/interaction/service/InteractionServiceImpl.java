@@ -333,11 +333,13 @@ public class InteractionServiceImpl implements InteractionService {
         ContactInfo.ContactInfoBuilder builder = ContactInfo.builder()
                 .email(user.getEmail());
 
-        // Имя из applicant. Если профиля нет — оставляем только email.
+        // candidateId — это userId. getSummary ожидает applicantId (ID профиля).
+        // Конвертируем через ApplicantModuleApi. Если профиля нет — оставляем только email.
         try {
-            ApplicantSummary summary = applicantModuleApi.getSummary(dto.getCandidateId());
+            UUID applicantId = applicantModuleApi.getApplicantIdByUserId(dto.getCandidateId());
+            ApplicantSummary summary = applicantModuleApi.getSummary(applicantId);
             builder.displayName(summary.getDisplayName());
-        } catch (ApplicantNotFoundException ignored) {
+        } catch (ApplicantNotFoundException e) {
             log.debug("Applicant profile not found for user={}", dto.getCandidateId());
         }
 
