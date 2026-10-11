@@ -50,7 +50,7 @@ public class SessionAuthenticationFilter extends OncePerRequestFilter {
         new PathRole("/api/assessment/",     "APPLICANT"),
         new PathRole("/api/matching/",       "EMPLOYER"),
         new PathRole("/api/employer/",       "EMPLOYER"),
-        new PathRole("/api/vacancy/",        "EMPLOYER"),
+        new PathRole("/api/vacancy/",        null),
         new PathRole("/api/interaction/",    null),   // и APPLICANT, и EMPLOYER
         new PathRole("/api/assignment/",    null)     // и APPLICANT, и EMPLOYER
     );
