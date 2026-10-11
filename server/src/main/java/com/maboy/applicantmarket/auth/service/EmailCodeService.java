@@ -1,5 +1,6 @@
 package com.maboy.applicantmarket.auth.service;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ public class EmailCodeService {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    public EmailCodeService(RedisTemplate<String, String> redisTemplate) {
+    public EmailCodeService(@Qualifier("sessionRedisTemplate") RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
