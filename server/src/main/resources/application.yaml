@@ -41,9 +41,9 @@ spring:
 app:
   auth:
     email-confirmation:
-      enabled: true
+      enabled: false
   mail:
-    enabled: true
+    enabled: false
     from: applicant-market@yandex.ru
   consents:
     data-processing-version: 1
